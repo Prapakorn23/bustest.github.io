@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรแกรมวิเคราะห์ GPS รถรางมหาวิทยาลัยเชียงใหม่</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Sarabun', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .loading {
+            display: none;
+        }
+        .loading.active {
+            display: block;
+        }
+        #map {
+            height: 600px;
+            width: 100%;
+            border-radius: 0.5rem;
+        }
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 2px solid #333;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div class="gradient-bg text-white py-8 px-4 shadow-lg">
+        <div class="container mx-auto max-w-7xl">
+            <h1 class="text-4xl font-bold text-center mb-2">
+                <i class="fas fa-bus mr-3"></i>
+                โปรแกรมวิเคราะห์ GPS รถรางมหาวิทยาลัยเชียงใหม่
+            </h1>
+            <p class="text-center text-purple-100">CMU Bus GPS Analysis System</p>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="container mx-auto max-w-7xl px-4 py-8">
+        <div id="results">
+            <!-- Section 0: Data Preparation -->
+            <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+                <div class="text-center mb-8">
+                    <div class="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-full mb-4">
+                        <i class="fas fa-cogs mr-2"></i>
+                        <span class="text-xl font-bold">ขั้นตอนที่ 0</span>
+                    </div>
+                    <h2 class="text-4xl font-bold text-gray-800 mb-3">
+                        การเตรียมข้อมูล
+                    </h2>
+                    <p class="text-xl text-gray-600">Data Preparation & Cleaning</p>
+                    <div class="w-32 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 mx-auto mt-4"></div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-indigo-500 p-6 rounded-lg mb-8">
+                    <h3 class="text-xl font-bold text-indigo-800 mb-3">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        เกี่ยวกับขั้นตอนนี้
+                    </h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        ก่อนที่จะวิเคราะห์ข้อมูล GPS ของรถราง เราต้องทำความสะอาดข้อมูลก่อน เพราะข้อมูลดิบมักมีปัญหา เช่น ข้อมูลหาย หรือข้อมูลผิดพลาด 
+                        ขั้นตอนนี้จะช่วยให้ข้อมูลพร้อมสำหรับการวิเคราะห์ต่อไป
+                    </p>
+                </div>
+
+                <!-- Progress Flow -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-center gap-3 flex-wrap">
+                        <div class="flex items-center">
+                            <div class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                                857,056 แถว
+                            </div>
+                            <i class="fas fa-arrow-right text-gray-400 mx-2"></i>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                                ลบข้อมูลหาย
+                            </div>
+                            <i class="fas fa-arrow-right text-gray-400 mx-2"></i>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="bg-orange-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                                529,454 แถว
+                            </div>
+                            <i class="fas fa-arrow-right text-gray-400 mx-2"></i>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                                กรองสาย 0, 99
+                            </div>
+                            <i class="fas fa-arrow-right text-gray-400 mx-2"></i>
+                        </div>
+                        <div class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-lg">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            464,749 แถว
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 1 -->
+                <div class="border border-indigo-200 rounded-xl mb-6 overflow-hidden">
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="bg-white text-indigo-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                    1
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">นำเข้าข้อมูล</h3>
+                                    <p class="text-indigo-100 text-sm">โหลดไฟล์ CSV และดูตัวอย่างข้อมูล</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-database text-3xl opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-white">
+                        <div class="mb-4">
+                            <p class="text-gray-700 leading-relaxed">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                <strong>ทำไมต้องทำ:</strong> เริ่มต้นด้วยการโหลดข้อมูลจากไฟล์ CSV เพื่อดูว่าข้อมูลมีหน้าตาเป็นอย่างไร มีคอลัมน์อะไรบ้าง
+                            </p>
+                        </div>
+                        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm border-2 border-gray-700"><code>import pandas as pd
+import numpy as np
+df = pd.read_csv('/content/drive/MyDrive/mymaterial_cmu_new_data_20250911.csv')
+df.head()</code></pre>
+                    
+                    <div class="mt-4 overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200 text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-3 py-2 border text-center">#</th>
+                                    <th class="px-3 py-2 border text-left">name</th>
+                                    <th class="px-3 py-2 border text-right">time</th>
+                                    <th class="px-3 py-2 border text-right">accuracy</th>
+                                    <th class="px-3 py-2 border text-right">bus</th>
+                                    <th class="px-3 py-2 border text-right">driver</th>
+                                    <th class="px-3 py-2 border text-right">getoff</th>
+                                    <th class="px-3 py-2 border text-right">geton</th>
+                                    <th class="px-3 py-2 border text-right">humid</th>
+                                    <th class="px-3 py-2 border text-right">lat</th>
+                                    <th class="px-3 py-2 border text-right">lng</th>
+                                    <th class="px-3 py-2 border text-right">passenger</th>
+                                    <th class="px-3 py-2 border text-right">pressure</th>
+                                    <th class="px-3 py-2 border text-right">route</th>
+                                    <th class="px-3 py-2 border text-right">speed</th>
+                                    <th class="px-3 py-2 border text-right">temp1</th>
+                                    <th class="px-3 py-2 border text-right">temp2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-3 py-2 border text-center">0</td>
+                                    <td class="px-3 py-2 border">bus_locations</td>
+                                    <td class="px-3 py-2 border text-right">1757548800000000000</td>
+                                    <td class="px-3 py-2 border text-right">0.0</td>
+                                    <td class="px-3 py-2 border text-right">3</td>
+                                    <td class="px-3 py-2 border text-right">2</td>
+                                    <td class="px-3 py-2 border text-right">0.0</td>
+                                    <td class="px-3 py-2 border text-right">0</td>
+                                    <td class="px-3 py-2 border text-right text-red-500 font-semibold">NaN</td>
+                                    <td class="px-3 py-2 border text-right">18.807329</td>
+                                    <td class="px-3 py-2 border text-right">98.955236</td>
+                                    <td class="px-3 py-2 border text-right">0</td>
+                                    <td class="px-3 py-2 border text-right text-red-500 font-semibold">NaN</td>
+                                    <td class="px-3 py-2 border text-right">1</td>
+                                    <td class="px-3 py-2 border text-right">3.820000</td>
+                                    <td class="px-3 py-2 border text-right text-red-500 font-semibold">NaN</td>
+                                    <td class="px-3 py-2 border text-right">9.269</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-3 py-2 border text-center">1</td>
+                                    <td class="px-3 py-2 border">bus_locations</td>
+                                    <td class="px-3 py-2 border text-right">1757548800000000000</td>
+                                    <td class="px-3 py-2 border text-right">21.6</td>
+                                    <td class="px-3 py-2 border text-right">79</td>
+                                    <td class="px-3 py-2 border text-right">15</td>
+                                    <td class="px-3 py-2 border text-right text-red-500 font-semibold">NaN</td>
+                                    <td class="px-3 py-2 border text-right">0</td>
+                                    <td class="px-3 py-2 border text-right text-red-500 font-semibold">NaN</td>
+                                    <td class="px-3 py-2 border text-right">18.796889</td>
+                                    <td class="px-3 py-2 border text-right">98.960365</td>
+                                    <td class="px-3 py-2 border text-right">5</td>
+                                    <td class="px-3 py-2 border text-right text-red-500 font-semibold">NaN</td>
+                                    <td class="px-3 py-2 border text-right">98</td>
+                                    <td class="px-3 py-2 border text-right">0.188477</td>
+                                    <td class="px-3 py-2 border text-right text-red-500 font-semibold">NaN</td>
+                                    <td class="px-3 py-2 border text-right text-red-500 font-semibold">NaN</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 bg-green-50">
+                                    <td class="px-3 py-2 border text-center">2</td>
+                                    <td class="px-3 py-2 border">bus_locations</td>
+                                    <td class="px-3 py-2 border text-right">1757548800000000000</td>
+                                    <td class="px-3 py-2 border text-right">0.0</td>
+                                    <td class="px-3 py-2 border text-right">30</td>
+                                    <td class="px-3 py-2 border text-right">2</td>
+                                    <td class="px-3 py-2 border text-right">0.0</td>
+                                    <td class="px-3 py-2 border text-right">0</td>
+                                    <td class="px-3 py-2 border text-right">92.827062</td>
+                                    <td class="px-3 py-2 border text-right">18.799355</td>
+                                    <td class="px-3 py-2 border text-right">98.952703</td>
+                                    <td class="px-3 py-2 border text-right">0</td>
+                                    <td class="px-3 py-2 border text-right">972.822705</td>
+                                    <td class="px-3 py-2 border text-right">2</td>
+                                    <td class="px-3 py-2 border text-right">2.488000</td>
+                                    <td class="px-3 py-2 border text-right">31.803437</td>
+                                    <td class="px-3 py-2 border text-right">31240.000</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-3 py-2 border text-center">3</td>
+                                    <td class="px-3 py-2 border">bus_locations</td>
+                                    <td class="px-3 py-2 border text-right">1757548800000000000</td>
+                                    <td class="px-3 py-2 border text-right">0.0</td>
+                                    <td class="px-3 py-2 border text-right">2</td>
+                                    <td class="px-3 py-2 border text-right">2</td>
+                                    <td class="px-3 py-2 border text-right">0.0</td>
+                                    <td class="px-3 py-2 border text-right">0</td>
+                                    <td class="px-3 py-2 border text-right">73.764625</td>
+                                    <td class="px-3 py-2 border text-right">18.799104</td>
+                                    <td class="px-3 py-2 border text-right">98.952973</td>
+                                    <td class="px-3 py-2 border text-right">0</td>
+                                    <td class="px-3 py-2 border text-right text-red-500 font-semibold">NaN</td>
+                                    <td class="px-3 py-2 border text-right">8</td>
+                                    <td class="px-3 py-2 border text-right">0.016000</td>
+                                    <td class="px-3 py-2 border text-right">36.941594</td>
+                                    <td class="px-3 py-2 border text-right text-red-500 font-semibold">NaN</td>
+                                </tr>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-3 py-2 border text-center">4</td>
+                                    <td class="px-3 py-2 border">bus_locations</td>
+                                    <td class="px-3 py-2 border text-right">1757548800000000000</td>
+                                    <td class="px-3 py-2 border text-right">0.0</td>
+                                    <td class="px-3 py-2 border text-right">26</td>
+                                    <td class="px-3 py-2 border text-right">2</td>
+                                    <td class="px-3 py-2 border text-right">0.0</td>
+                                    <td class="px-3 py-2 border text-right">0</td>
+                                    <td class="px-3 py-2 border text-right">76.600625</td>
+                                    <td class="px-3 py-2 border text-right">18.799336</td>
+                                    <td class="px-3 py-2 border text-right">98.952488</td>
+                                    <td class="px-3 py-2 border text-right">0</td>
+                                    <td class="px-3 py-2 border text-right">972.737012</td>
+                                    <td class="px-3 py-2 border text-right">2</td>
+                                    <td class="px-3 py-2 border text-right">0.044000</td>
+                                    <td class="px-3 py-2 border text-right">35.188812</td>
+                                    <td class="px-3 py-2 border text-right">35170.000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                        <div class="bg-blue-50 p-4 rounded-lg mt-4">
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                <strong>ผลลัพธ์:</strong> พบข้อมูลทั้งหมด 857,056 แถว แต่บางคอลัมน์มีข้อมูลหาย เช่น humid, pressure
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="border border-blue-200 rounded-xl mb-6 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="bg-white text-blue-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                    2
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">ตรวจสอบข้อมูลเบื้องต้น</h3>
+                                    <p class="text-blue-100 text-sm">ดูว่ามีข้อมูลกี่แถว แต่ละคอลัมน์เป็นประเภทอะไร</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-search text-3xl opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-white">
+                        <div class="mb-4">
+                            <p class="text-gray-700 leading-relaxed">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                <strong>ทำไมต้องทำ:</strong> เพื่อดูภาพรวมของข้อมูล เช่น จำนวนแถว ประเภทข้อมูล และสังเกตว่าคอลัมน์ไหนมีข้อมูลหายบ้าง
+                            </p>
+                        </div>
+                        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm border-2 border-gray-700"><code>df.info()
+
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 857056 entries, 0 to 857055
+Data columns (total 17 columns):
+ #   Column      Non-Null Count  Dtype
+---  ------      --------------  -----
+ 0   name        857056 non-null object
+ 1   time        857056 non-null int64
+ 2   accuracy    857056 non-null float64
+ 3   bus         857056 non-null int64
+ 4   driver      857056 non-null int64
+ 5   getoff      734740 non-null float64
+ 6   geton       857056 non-null int64
+ 7   humid       601832 non-null float64
+ 8   lat         857056 non-null float64
+ 9   lng         857056 non-null float64
+ 10  passenger   857056 non-null int64
+ 11  pressure    558175 non-null float64
+ 12  route       857056 non-null int64
+ 13  speed       857056 non-null float64
+ 14  temp1       601832 non-null float64
+ 15  temp2       652204 non-null float64
+ 16  v           857056 non-null object
+dtypes: float64(9), int64(6), object(2)
+memory usage: 111.2+ MB</code></pre>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg mt-4">
+                            <p class="text-sm text-gray-700">
+                                <i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>
+                                <strong>สิ่งที่พบ:</strong> คอลัมน์ humid มีเพียง 601,832 แถว (จาก 857,056) แสดงว่ามีข้อมูลหาย 255,224 แถว!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="border border-yellow-200 rounded-xl mb-6 overflow-hidden">
+                    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="bg-white text-yellow-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                    3
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">ระบุปัญหาข้อมูลหาย</h3>
+                                    <p class="text-yellow-100 text-sm">ทำความเข้าใจว่าข้อมูลหายจะส่งผลต่อการวิเคราะห์อย่างไร</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-exclamation-triangle text-3xl opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-white">
+                        <div class="mb-4">
+                            <p class="text-gray-700 leading-relaxed">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                <strong>ทำไมสำคัญ:</strong> ข้อมูลที่หาย (Missing Data) อาจทำให้ผลการวิเคราะห์ผิดพลาด ต้องจัดการให้เหมาะสม
+                            </p>
+                        </div>
+                        <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-lg">
+                            <p class="text-gray-700 leading-relaxed">
+                                <i class="fas fa-info-circle text-orange-500 mr-2"></i>
+                                จากการตรวจสอบพบว่ามีหลายคอลัมน์ที่ข้อมูลไม่ครบ เราจะลบแถวที่มีข้อมูลหายออกเพื่อความแม่นยำ
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="border border-red-200 rounded-xl mb-6 overflow-hidden">
+                    <div class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="bg-white text-red-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                    4
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">ลบข้อมูลที่หาย</h3>
+                                    <p class="text-red-100 text-sm">กำจัดแถวที่มีข้อมูลหาย เหลือเฉพาะข้อมูลที่สมบูรณ์</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-trash-alt text-3xl opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-white">
+                        <div class="mb-4">
+                            <p class="text-gray-700 leading-relaxed">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                <strong>วิธีการ:</strong> ใช้คำสั่ง <code class="bg-gray-200 px-2 py-1 rounded text-red-600">dropna()</code> เพื่อลบแถวที่มีค่าว่าง (NaN) ออกไป
+                            </p>
+                        </div>
+                        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm border-2 border-gray-700"><code>df.dropna(inplace=True)
+df.info()
+
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+Index: 529454 entries, 2 to 857055
+Data columns (total 17 columns):
+ #   Column      Non-Null Count  Dtype
+---  ------      --------------  -----
+ 0   name        529454 non-null object
+ 1   time        529454 non-null object
+ 2   accuracy    529454 non-null float64
+ 3   bus         529454 non-null int64
+ 4   driver      529454 non-null int64
+ 5   getoff      529454 non-null float64
+ 6   geton       529454 non-null int64
+ 7   humid       529454 non-null float64
+ 8   lat         529454 non-null float64
+ 9   lng         529454 non-null float64
+ 10  passenger   529454 non-null int64
+ 11  pressure    529454 non-null float64
+ 12  route       529454 non-null int64
+ 13  speed       529454 non-null float64
+ 14  temp1       529454 non-null float64
+ 15  temp2       529454 non-null float64
+ 16  v           529454 non-null object
+dtypes: float64(9), int64(5), object(3)
+memory usage: 72.7+ MB</code></pre>
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mt-4">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                    <strong>ผลลัพธ์:</strong> ลบเรียบร้อย! เหลือข้อมูล <span class="text-green-700 font-bold">529,454 แถว</span> (ลดลง 327,602 แถว)
+                                </p>
+                                <span class="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold">-38.2%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="border border-teal-200 rounded-xl mb-6 overflow-hidden">
+                    <div class="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="bg-white text-teal-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                    5
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">แปลงรูปแบบเวลา</h3>
+                                    <p class="text-teal-100 text-sm">เปลี่ยนเวลาจากตัวเลขยาวๆ ให้อ่านง่าย (HH:MM:SS)</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-clock text-3xl opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-white">
+                        <div class="mb-4">
+                            <p class="text-gray-700 leading-relaxed">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                <strong>ทำไมต้องทำ:</strong> ข้อมูลเวลาเดิมเป็นตัวเลข nanoseconds (ยาวมาก) เราจะแปลงให้เป็นรูปแบบเวลาปกติที่อ่านเข้าใจง่าย
+                            </p>
+                        </div>
+                    <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm border-2 border-gray-700"><code>df['time'] = pd.to_datetime(df['time'], unit='ns', utc=True).dt.tz_localize(None)
+df = df.drop(columns=['v'])
+df['time'] = df.time.dt.strftime('%H:%M:%S.%f')
+df</code></pre>
+                        <div class="bg-teal-50 p-4 rounded-lg mt-4">
+                            <p class="text-sm text-gray-600 mb-3">
+                                <i class="fas fa-info-circle text-teal-500 mr-2"></i>
+                                <strong>ตัวอย่างการแปลงเวลา:</strong>
+                            </p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">ก่อน:</p>
+                                    <code class="bg-white px-3 py-2 rounded text-red-600 text-sm">1757588800000000000</code>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-500 mb-1">หลัง:</p>
+                                    <code class="bg-white px-3 py-2 rounded text-green-600 text-sm">21:44:59</code>
+                                </div>
+                            </div>
+                        </div>
+                    <div class="mt-4 overflow-x-auto hidden">
+                        <p class="text-gray-600 text-sm mb-2">ตัวอย่างข้อมูลหลังแปลงเวลา:</p>
+                        <table class="min-w-full bg-white border border-gray-200 text-xs">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-2 py-1 border">#</th>
+                                    <th class="px-2 py-1 border">name</th>
+                                    <th class="px-2 py-1 border">time</th>
+                                    <th class="px-2 py-1 border">accuracy</th>
+                                    <th class="px-2 py-1 border">bus</th>
+                                    <th class="px-2 py-1 border">driver</th>
+                                    <th class="px-2 py-1 border">getoff</th>
+                                    <th class="px-2 py-1 border">geton</th>
+                                    <th class="px-2 py-1 border">humid</th>
+                                    <th class="px-2 py-1 border">lat</th>
+                                    <th class="px-2 py-1 border">lng</th>
+                                    <th class="px-2 py-1 border">passenger</th>
+                                    <th class="px-2 py-1 border">pressure</th>
+                                    <th class="px-2 py-1 border">route</th>
+                                    <th class="px-2 py-1 border">speed</th>
+                                    <th class="px-2 py-1 border">temp1</th>
+                                    <th class="px-2 py-1 border">temp2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-2 py-1 border text-center">857051</td>
+                                    <td class="px-2 py-1 border">bus_locations</td>
+                                    <td class="px-2 py-1 border">21:44:59</td>
+                                    <td class="px-2 py-1 border text-right">0.0</td>
+                                    <td class="px-2 py-1 border text-right">39</td>
+                                    <td class="px-2 py-1 border text-right">2</td>
+                                    <td class="px-2 py-1 border text-right">0.0</td>
+                                    <td class="px-2 py-1 border text-right">0</td>
+                                    <td class="px-2 py-1 border text-right">39.225505</td>
+                                    <td class="px-2 py-1 border text-right">18.977098</td>
+                                    <td class="px-2 py-1 border text-right">58.916121</td>
+                                    <td class="px-2 py-1 border text-right">0</td>
+                                    <td class="px-2 py-1 border text-right">972.485363</td>
+                                    <td class="px-2 py-1 border text-right">5</td>
+                                    <td class="px-2 py-1 border text-right">5.630000</td>
+                                    <td class="px-2 py-1 border text-right">36.596266</td>
+                                    <td class="px-2 py-1 border text-right">30.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Step 6 -->
+                <div class="border border-purple-200 rounded-xl mb-6 overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="bg-white text-purple-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                    6
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">ตรวจสอบสายรถ</h3>
+                                    <p class="text-purple-100 text-sm">ดูว่ามีสายรถอะไรบ้างในข้อมูล</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-route text-3xl opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-white">
+                        <div class="mb-4">
+                            <p class="text-gray-700 leading-relaxed">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                <strong>ทำไมต้องทำ:</strong> ตรวจสอบว่ามีสายรถอะไรบ้างในข้อมูล เพราะบางสายอาจเป็นข้อมูลทดสอบหรือไม่ใช้งานจริง
+                            </p>
+                        </div>
+                        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm border-2 border-gray-700"><code>df['route'].unique()
+
+array([2, 5, 3, 99, 8, 1, 9, 4, 0, 7, 6])</code></pre>
+                        <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded-lg mt-4">
+                            <p class="text-sm text-gray-700">
+                                <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+                                <strong>พบปัญหา:</strong> มีสาย <span class="bg-red-200 px-2 py-1 rounded font-bold">0</span> และ <span class="bg-red-200 px-2 py-1 rounded font-bold">99</span> ซึ่งไม่ใช่สายรถจริง ต้องกรองออก!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 7 -->
+                <div class="border border-green-200 rounded-xl mb-6 overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="bg-white text-green-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                    7
+                                </div>
+                                <div>
+                                    <h3 class="text-2xl font-bold">กรองสายรถที่ไม่ต้องการ</h3>
+                                    <p class="text-green-100 text-sm">ตัดสาย 0 และ 99 ออก เหลือเฉพาะสายที่ใช้งานจริง</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-filter text-3xl opacity-50"></i>
+                        </div>
+                    </div>
+                    <div class="p-6 bg-white">
+                        <div class="mb-4">
+                            <p class="text-gray-700 leading-relaxed">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                <strong>วิธีการ:</strong> สร้างเงื่อนไขเพื่อเก็บเฉพาะสายรถที่เป็น 1-9 และตัดสาย 0, 99 ออก
+                            </p>
+                        </div>
+                        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm border-2 border-gray-700"><code>condition_to_keep = (df['route'] != 0) & (df['route'] != 99)
+
+# กรองและเก็บเฉพาะถ่านตามเงื่อนไข (คือแยกไม่ใช่ 0 และไม่ใช่ 99)
+df_filtered = df[condition_to_keep].copy()
+
+# (หากเลือก) รีเซ็ต Index ให้เรียงใหม่
+df = df_filtered.reset_index(drop=True)</code></pre>
+                    
+                    <div class="mt-4">
+                        <pre class="bg-gray-800 text-green-400 p-4 rounded-lg overflow-x-auto text-sm"><code>df.info()
+
+&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 464749 entries, 0 to 464748
+Data columns (total 17 columns):
+ #   Column      Non-Null Count  Dtype
+---  ------      --------------  -----
+ 0   name        464749 non-null object
+ 1   time        464749 non-null object
+ 2   accuracy    464749 non-null float64
+ 3   bus         464749 non-null int64
+ 4   driver      464749 non-null int64
+ 5   getoff      464749 non-null float64
+ 6   geton       464749 non-null int64
+ 7   humid       464749 non-null float64
+ 8   lat         464749 non-null float64
+ 9   lng         464749 non-null float64
+ 10  passenger   464749 non-null int64
+ 11  pressure    464749 non-null float64
+ 12  route       464749 non-null int64
+ 13  speed       464749 non-null float64
+ 14  temp1       464749 non-null float64
+ 15  temp2       464749 non-null float64
+ 16  v           464749 non-null object
+dtypes: float64(9), int64(5), object(3)
+memory usage: 60.3+ MB</code></pre>
+                        <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg mt-4">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm text-gray-700">
+                                    <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                    <strong>สำเร็จ!</strong> เหลือข้อมูล <span class="text-green-700 font-bold">464,749 แถว</span> พร้อมวิเคราะห์
+                                </p>
+                                <span class="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-bold">✓ READY</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Summary -->
+                <div class="bg-white border-4 border-green-400 rounded-2xl shadow-2xl p-8 mb-6">
+                    <div class="text-center mb-6">
+                        <div class="inline-block bg-green-500 rounded-full p-4 mb-4">
+                            <i class="fas fa-check-circle text-6xl text-white"></i>
+                        </div>
+                        <h3 class="text-4xl font-bold mb-3 text-green-700">การเตรียมข้อมูลเสร็จสมบูรณ์!</h3>
+                        <p class="text-gray-600 text-xl">ข้อมูลพร้อมสำหรับการวิเคราะห์แล้ว</p>
+                        <div class="w-32 h-1 bg-green-500 mx-auto mt-4"></div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-blue-50 border-2 border-blue-300 rounded-xl p-6 text-center hover:shadow-lg transition-shadow">
+                            <div class="text-5xl font-bold mb-2 text-blue-700">857,056</div>
+                            <div class="text-gray-700 font-semibold">แถวข้อมูลเริ่มต้น</div>
+                            <i class="fas fa-database text-3xl mt-3 text-blue-500"></i>
+                        </div>
+                        <div class="bg-red-50 border-2 border-red-300 rounded-xl p-6 text-center hover:shadow-lg transition-shadow">
+                            <div class="text-5xl font-bold mb-2 text-red-700">-392,307</div>
+                            <div class="text-gray-700 font-semibold">ข้อมูลที่ตัดออก (45.7%)</div>
+                            <i class="fas fa-minus-circle text-3xl mt-3 text-red-500"></i>
+                        </div>
+                        <div class="bg-green-50 border-2 border-green-300 rounded-xl p-6 text-center hover:shadow-lg transition-shadow">
+                            <div class="text-5xl font-bold mb-2 text-green-700">464,749</div>
+                            <div class="text-gray-700 font-semibold">แถวข้อมูลสุดท้าย (สะอาด)</div>
+                            <i class="fas fa-check-circle text-3xl mt-3 text-green-500"></i>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-6">
+                        <h4 class="text-2xl font-bold mb-5 flex items-center text-green-800">
+                            <i class="fas fa-list-check mr-3 text-green-600"></i>
+                            สิ่งที่ได้ทำ
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="flex items-start bg-white p-3 rounded-lg shadow-sm">
+                                <i class="fas fa-check-circle text-green-600 text-xl mr-3 mt-1"></i>
+                                <span class="text-gray-800 font-medium">ลบข้อมูลที่หาย (Missing Data)</span>
+                            </div>
+                            <div class="flex items-start bg-white p-3 rounded-lg shadow-sm">
+                                <i class="fas fa-check-circle text-green-600 text-xl mr-3 mt-1"></i>
+                                <span class="text-gray-800 font-medium">แปลงรูปแบบเวลาให้อ่านง่าย</span>
+                            </div>
+                            <div class="flex items-start bg-white p-3 rounded-lg shadow-sm">
+                                <i class="fas fa-check-circle text-green-600 text-xl mr-3 mt-1"></i>
+                                <span class="text-gray-800 font-medium">กรองสาย 0 และ 99 ออก</span>
+                            </div>
+                            <div class="flex items-start bg-white p-3 rounded-lg shadow-sm">
+                                <i class="fas fa-check-circle text-green-600 text-xl mr-3 mt-1"></i>
+                                <span class="text-gray-800 font-medium">เหลือเฉพาะสาย 1-9 (9 สาย)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 1: Basic Info -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6 card-hover">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-blue-500 pb-2">
+                    <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+                    [1] ข้อมูลเบื้องต้น
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="text-3xl font-bold text-blue-600" id="totalRows">464,749</div>
+                        <div class="text-gray-600">แถวข้อมูลทั้งหมด หลังจากทำการลบค่าที่ว่างและกรองสายรถที่มี สาย 0 และ 99 ออก</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <div class="text-3xl font-bold text-green-600" id="totalBuses">20</div>
+                        <div class="text-gray-600">จำนวนรถทั้งหมด</div>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg">
+                        <div class="text-3xl font-bold text-purple-600" id="totalRoutes">9</div>
+                        <div class="text-gray-600">จำนวนสายทั้งหมด</div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <p class="text-gray-700"><strong>รถหมายเลข:</strong> <span id="busNumbers">[2, 4, 7, 9, 10, 13, 18, 19, 20, 22, 26, 27, 28, 29, 30, 31, 35, 36, 37, 39]</span></p>
+                    <p class="text-gray-700 mt-2"><strong>สายหมายเลข:</strong> <span id="routeNumbers">[1, 2, 3, 4, 5, 6, 7, 8, 9]</span></p>
+                    <p class="text-gray-700 mt-2"><strong>ช่วงเวลา:</strong> <span id="timeRange">07:00:00 ถึง 21:44:59</span></p>
+                </div>
+            </div>
+
+            <!-- Section 2: GPS Problems -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6 card-hover">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-red-500 pb-2">
+                    <i class="fas fa-exclamation-triangle mr-2 text-red-600"></i>
+                    [2] วิเคราะห์ปัญหา GPS เพี้ยน
+                </h2>
+                
+                <div class="mb-6">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-times-circle text-red-500 mr-2"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">ปัญหา GPS = (0.0, 0.0)</h3>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg mb-4">
+                        <div class="text-3xl font-bold text-red-600">17,341 แถว (3.73%)</div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 border text-left">รถหมายเลข</th>
+                                    <th class="px-4 py-2 border text-right">จำนวนครั้ง</th>
+                                    <th class="px-4 py-2 border text-right">% ของรถคันนี้</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border">28</td><td class="px-4 py-2 border text-right">9,189</td><td class="px-4 py-2 border text-right text-red-600 font-semibold">28.49%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border">7</td><td class="px-4 py-2 border text-right">2,090</td><td class="px-4 py-2 border text-right text-red-600 font-semibold">39.05%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border">27</td><td class="px-4 py-2 border text-right">1,271</td><td class="px-4 py-2 border text-right">3.95%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border">9</td><td class="px-4 py-2 border text-right">945</td><td class="px-4 py-2 border text-right">8.89%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border">18</td><td class="px-4 py-2 border text-right">936</td><td class="px-4 py-2 border text-right">2.70%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-times-circle text-orange-500 mr-2"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">ปัญหา GPS นอกเขต CMU</h3>
+                    </div>
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-orange-600">322 แถว (0.07%)</div>
+                        <p class="text-gray-600 mt-2">รถหมายเลข 28: 322 ครั้ง</p>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center mb-3">
+                        <i class="fas fa-random text-purple-500 mr-2"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">ปัญหาการกระโดดตำแหน่ง (Teleporting)</h3>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-lg mb-4">
+                        <div class="text-3xl font-bold text-purple-600">51 ครั้ง</div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 border text-left">รถหมายเลข</th>
+                                    <th class="px-4 py-2 border text-right">จำนวนครั้ง</th>
+                                    <th class="px-4 py-2 border text-right">ระยะไกลสุด (m)</th>
+                                    <th class="px-4 py-2 border text-right">เฉลี่ย (m)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border">28</td><td class="px-4 py-2 border text-right">17</td><td class="px-4 py-2 border text-right text-red-600 font-semibold">28,343</td><td class="px-4 py-2 border text-right">2,442</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border">7</td><td class="px-4 py-2 border text-right">12</td><td class="px-4 py-2 border text-right">3,504</td><td class="px-4 py-2 border text-right">1,093</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border">37</td><td class="px-4 py-2 border text-right">5</td><td class="px-4 py-2 border text-right">1,413</td><td class="px-4 py-2 border text-right">835</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border">20</td><td class="px-4 py-2 border text-right">3</td><td class="px-4 py-2 border text-right">765</td><td class="px-4 py-2 border text-right">761</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border">10</td><td class="px-4 py-2 border text-right">3</td><td class="px-4 py-2 border text-right">1,012</td><td class="px-4 py-2 border text-right">828</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Route Analysis -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6 card-hover">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-green-500 pb-2">
+                    <i class="fas fa-route mr-2 text-green-600"></i>
+                    [3] วิเคราะห์ปัญหาตามสาย
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 border text-center">สาย</th>
+                                <th class="px-4 py-2 border text-right">จำนวนข้อมูล</th>
+                                <th class="px-4 py-2 border text-right">GPS = 0</th>
+                                <th class="px-4 py-2 border text-right">% GPS = 0</th>
+                                <th class="px-4 py-2 border text-right">GPS นอกเขต</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-semibold">1</td><td class="px-4 py-2 border text-right">45,344</td><td class="px-4 py-2 border text-right">1,881</td><td class="px-4 py-2 border text-right text-orange-600">4.15%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-semibold">2</td><td class="px-4 py-2 border text-right">59,240</td><td class="px-4 py-2 border text-right">1,136</td><td class="px-4 py-2 border text-right">1.92%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-semibold">3</td><td class="px-4 py-2 border text-right">26,124</td><td class="px-4 py-2 border text-right">2,117</td><td class="px-4 py-2 border text-right text-orange-600">8.10%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-semibold">4</td><td class="px-4 py-2 border text-right">43,749</td><td class="px-4 py-2 border text-right">223</td><td class="px-4 py-2 border text-right">0.51%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-semibold">5</td><td class="px-4 py-2 border text-right">98,120</td><td class="px-4 py-2 border text-right">974</td><td class="px-4 py-2 border text-right">0.99%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-semibold">6</td><td class="px-4 py-2 border text-right">13,066</td><td class="px-4 py-2 border text-right">148</td><td class="px-4 py-2 border text-right">1.13%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-semibold">7</td><td class="px-4 py-2 border text-right">18,514</td><td class="px-4 py-2 border text-right">2</td><td class="px-4 py-2 border text-right">0.01%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-semibold">8</td><td class="px-4 py-2 border text-right">72,389</td><td class="px-4 py-2 border text-right">3</td><td class="px-4 py-2 border text-right">0.00%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50 bg-red-50"><td class="px-4 py-2 border text-center font-semibold">9</td><td class="px-4 py-2 border text-right">88,203</td><td class="px-4 py-2 border text-right">10,857</td><td class="px-4 py-2 border text-right text-red-600 font-bold">12.31%</td><td class="px-4 py-2 border text-right">322</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 bg-yellow-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-yellow-800 mb-2">สายที่มีปัญหามากที่สุด:</h3>
+                    <ul class="list-disc list-inside text-gray-700 space-y-1">
+                        <li>สาย 9: GPS เพี้ยน <span class="font-bold text-red-600">12.31%</span></li>
+                        <li>สาย 3: GPS เพี้ยน <span class="font-bold text-orange-600">8.10%</span></li>
+                        <li>สาย 1: GPS เพี้ยน <span class="font-bold text-orange-600">4.15%</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Section 4: Bus Analysis -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6 card-hover">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-yellow-500 pb-2">
+                    <i class="fas fa-bus-alt mr-2 text-yellow-600"></i>
+                    [4] วิเคราะห์ปัญหาตามรถ (Top 10)
+                </h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="px-4 py-2 border text-center">รถหมายเลข</th>
+                                <th class="px-4 py-2 border text-center">สาย</th>
+                                <th class="px-4 py-2 border text-right">จำนวนข้อมูล</th>
+                                <th class="px-4 py-2 border text-right">GPS = 0</th>
+                                <th class="px-4 py-2 border text-right">% GPS = 0</th>
+                                <th class="px-4 py-2 border text-right">GPS นอกเขต</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="hover:bg-gray-50 bg-red-50"><td class="px-4 py-2 border text-center font-bold">7</td><td class="px-4 py-2 border text-center">3</td><td class="px-4 py-2 border text-right">5,352</td><td class="px-4 py-2 border text-right">2,090</td><td class="px-4 py-2 border text-right text-red-600 font-bold">39.05%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50 bg-red-50"><td class="px-4 py-2 border text-center font-bold">28</td><td class="px-4 py-2 border text-center">9</td><td class="px-4 py-2 border text-right">32,249</td><td class="px-4 py-2 border text-right">9,189</td><td class="px-4 py-2 border text-right text-red-600 font-bold">28.49%</td><td class="px-4 py-2 border text-right">322</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-bold">9</td><td class="px-4 py-2 border text-center">1</td><td class="px-4 py-2 border text-right">10,625</td><td class="px-4 py-2 border text-right">945</td><td class="px-4 py-2 border text-right text-orange-600">8.89%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-bold">37</td><td class="px-4 py-2 border text-center">2</td><td class="px-4 py-2 border text-right">17,815</td><td class="px-4 py-2 border text-right">778</td><td class="px-4 py-2 border text-right">4.37%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-bold">27</td><td class="px-4 py-2 border text-center">9</td><td class="px-4 py-2 border text-right">32,148</td><td class="px-4 py-2 border text-right">1,271</td><td class="px-4 py-2 border text-right">3.95%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-bold">13</td><td class="px-4 py-2 border text-center">5</td><td class="px-4 py-2 border text-right">26,894</td><td class="px-4 py-2 border text-right">798</td><td class="px-4 py-2 border text-right">2.97%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-bold">18</td><td class="px-4 py-2 border text-center">1</td><td class="px-4 py-2 border text-right">34,719</td><td class="px-4 py-2 border text-right">936</td><td class="px-4 py-2 border text-right">2.70%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-bold">36</td><td class="px-4 py-2 border text-center">4</td><td class="px-4 py-2 border text-right">11,529</td><td class="px-4 py-2 border text-right">223</td><td class="px-4 py-2 border text-right">1.93%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-bold">10</td><td class="px-4 py-2 border text-center">9</td><td class="px-4 py-2 border text-right">23,806</td><td class="px-4 py-2 border text-right">397</td><td class="px-4 py-2 border text-right">1.67%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                            <tr class="hover:bg-gray-50"><td class="px-4 py-2 border text-center font-bold">35</td><td class="px-4 py-2 border text-center">6</td><td class="px-4 py-2 border text-right">13,066</td><td class="px-4 py-2 border text-right">148</td><td class="px-4 py-2 border text-right">1.13%</td><td class="px-4 py-2 border text-right">0</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section 5: GPS Loss Locations -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6 card-hover">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-pink-500 pb-2">
+                    <i class="fas fa-map-marker-alt mr-2 text-pink-600"></i>
+                    [5] วิเคราะห์จุดที่ GPS หาย (Hotspots)
+                </h2>
+                <div class="bg-pink-50 p-4 rounded-lg mb-4">
+                    <div class="text-2xl font-bold text-pink-600">พบ 460 จุดที่ GPS หาย</div>
+                </div>
+                <div class="space-y-4">
+                    <div class="border-l-4 border-red-500 bg-gray-50 p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="font-bold text-lg text-gray-800">จุด (18.799351, 98.952704)</div>
+                                <div class="text-red-600 font-semibold">หาย 125 ครั้ง</div>
+                            </div>
+                            <a href="https://www.google.com/maps?q=18.799351202584,98.95270396488" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-map-marked-alt mr-2"></i>Google Maps
+                            </a>
+                        </div>
+                    </div>
+                    <div class="border-l-4 border-orange-500 bg-gray-50 p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="font-bold text-lg text-gray-800">จุด (18.792715, 98.956698)</div>
+                                <div class="text-orange-600 font-semibold">หาย 40 ครั้ง</div>
+                            </div>
+                            <a href="https://www.google.com/maps?q=18.792715464525,98.9566978092" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-map-marked-alt mr-2"></i>Google Maps
+                            </a>
+                        </div>
+                    </div>
+                    <div class="border-l-4 border-orange-500 bg-gray-50 p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="font-bold text-lg text-gray-800">จุด (18.797805, 98.960119)</div>
+                                <div class="text-orange-600 font-semibold">หาย 33 ครั้ง</div>
+                            </div>
+                            <a href="https://www.google.com/maps?q=18.797804663575757,98.96011874630302" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-map-marked-alt mr-2"></i>Google Maps
+                            </a>
+                        </div>
+                    </div>
+                    <div class="border-l-4 border-yellow-500 bg-gray-50 p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="font-bold text-lg text-gray-800">จุด (18.801843, 98.951273)</div>
+                                <div class="text-yellow-600 font-semibold">หาย 18 ครั้ง</div>
+                            </div>
+                            <a href="https://www.google.com/maps?q=18.80184297988889,98.95127321177777" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-map-marked-alt mr-2"></i>Google Maps
+                            </a>
+                        </div>
+                    </div>
+                    <div class="border-l-4 border-yellow-500 bg-gray-50 p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <div class="font-bold text-lg text-gray-800">จุด (18.803454, 98.949476)</div>
+                                <div class="text-yellow-600 font-semibold">หาย 18 ครั้ง</div>
+                            </div>
+                            <a href="https://www.google.com/maps?q=18.803453531333332,98.94947597505556" target="_blank" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                <i class="fas fa-map-marked-alt mr-2"></i>Google Maps
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5.5: GPS Problem Map by Route -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6 card-hover">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-teal-500 pb-2">
+                    <i class="fas fa-map mr-2 text-teal-600"></i>
+                    [5.5] แผนที่แสดงจุดเพี้ยน GPS แยกตามสาย
+                </h2>
+                <div class="bg-teal-50 p-4 rounded-lg mb-4">
+                    <p class="text-gray-700">
+                        <i class="fas fa-info-circle mr-2 text-teal-600"></i>
+                        แผนที่แสดงจุดที่ GPS หายหรือมีปัญหา แต่ละสีแทนสายรถต่างกัน คลิกที่จุดเพื่อดูรายละเอียด
+                    </p>
+                </div>
+                
+                <!-- Route Filter Controls -->
+                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-gray-800">
+                            <i class="fas fa-filter mr-2"></i>กรองตามสาย
+                        </h3>
+                        <div class="space-x-2">
+                            <button onclick="selectAllRoutes()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                <i class="fas fa-check-double mr-1"></i>เลือกทั้งหมด
+                            </button>
+                            <button onclick="deselectAllRoutes()" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                <i class="fas fa-times mr-1"></i>ยกเลิกทั้งหมด
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-9 gap-3" id="routeFilters">
+                        <!-- Checkboxes will be generated here -->
+                    </div>
+                </div>
+
+                <div id="map"></div>
+            </div>
+
+            <!-- Section 6: Speed Analysis -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6 card-hover">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-indigo-500 pb-2">
+                    <i class="fas fa-tachometer-alt mr-2 text-indigo-600"></i>
+                    [6] วิเคราะห์ความเร็วผิดปกติ
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-50 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-blue-600">0.00</div>
+                        <div class="text-gray-600 text-sm">ค่าต่ำสุด (km/h)</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-green-600">2.33</div>
+                        <div class="text-gray-600 text-sm">ค่าเฉลี่ย (km/h)</div>
+                    </div>
+                    <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-yellow-600">1.07</div>
+                        <div class="text-gray-600 text-sm">ค่ามัธยฐาน (km/h)</div>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg text-center">
+                        <div class="text-2xl font-bold text-red-600">78.30</div>
+                        <div class="text-gray-600 text-sm">ค่าสูงสุด (km/h)</div>
+                    </div>
+                </div>
+                <div class="bg-red-50 p-4 rounded-lg mb-4">
+                    <div class="text-2xl font-bold text-red-600">ความเร็วผิดปกติ (> 60 km/h): 23 ครั้ง</div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
+                        <span class="font-semibold">รถหมายเลข 28:</span>
+                        <span class="text-red-600 font-bold">21 ครั้ง (เร็วสุด: 78.30 km/h)</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
+                        <span class="font-semibold">รถหมายเลข 18:</span>
+                        <span class="text-orange-600">1 ครั้ง (เร็วสุด: 60.61 km/h)</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-50 p-3 rounded">
+                        <span class="font-semibold">รถหมายเลข 37:</span>
+                        <span class="text-orange-600">1 ครั้ง (เร็วสุด: 72.81 km/h)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Section -->
+            <div class="bg-white border-4 border-indigo-400 rounded-2xl shadow-2xl p-8 mb-6">
+                <div class="text-center mb-8">
+                    <div class="inline-block bg-indigo-500 rounded-full p-4 mb-4">
+                        <i class="fas fa-chart-bar text-6xl text-white"></i>
+                    </div>
+                    <h2 class="text-4xl font-bold mb-3 text-indigo-700">
+                        สรุปผลการวิเคราะห์
+                    </h2>
+                    <p class="text-gray-600 text-xl">INSIGHTS & KEY FINDINGS</p>
+                    <div class="w-32 h-1 bg-indigo-500 mx-auto mt-4"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-red-50 border-2 border-red-300 rounded-xl p-6">
+                        <h3 class="text-2xl font-bold mb-4 text-red-700 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-3"></i>
+                            ปัญหาที่พบ
+                        </h3>
+                        <ul class="space-y-3 text-gray-800">
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-red-500 text-xs mr-3 mt-2"></i>
+                                <span>GPS เพี้ยนทั้งหมด: <strong class="text-red-700">17,663 แถว (3.80%)</strong></span>
+                            </li>
+                            <li class="ml-8 text-gray-700">- GPS = (0, 0): 17,341 แถว</li>
+                            <li class="ml-8 text-gray-700">- GPS นอกเขต CMU: 322 แถว</li>
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-red-500 text-xs mr-3 mt-2"></i>
+                                <span>การกระโดดตำแหน่ง: <strong class="text-red-700">51 ครั้ง</strong></span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-orange-50 border-2 border-orange-300 rounded-xl p-6">
+                        <h3 class="text-2xl font-bold mb-4 text-orange-700 flex items-center">
+                            <i class="fas fa-route mr-3"></i>
+                            สายที่มีปัญหามากที่สุด
+                        </h3>
+                        <ol class="space-y-3 text-gray-800 font-medium">
+                            <li class="flex justify-between items-center">
+                                <span>1. สาย 9:</span>
+                                <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-bold">12.31%</span>
+                            </li>
+                            <li class="flex justify-between items-center">
+                                <span>2. สาย 3:</span>
+                                <span class="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-bold">8.10%</span>
+                            </li>
+                            <li class="flex justify-between items-center">
+                                <span>3. สาย 1:</span>
+                                <span class="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold">4.15%</span>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-6">
+                        <h3 class="text-2xl font-bold mb-4 text-yellow-700 flex items-center">
+                            <i class="fas fa-bus mr-3"></i>
+                            รถที่มีปัญหามากที่สุด
+                        </h3>
+                        <ol class="space-y-2 text-gray-800">
+                            <li class="flex justify-between items-center">
+                                <span>1. รถ 7 (สาย 3):</span>
+                                <strong class="text-red-700">39.05%</strong>
+                            </li>
+                            <li class="flex justify-between items-center">
+                                <span>2. รถ 28 (สาย 9):</span>
+                                <strong class="text-red-600">28.49%</strong>
+                            </li>
+                            <li class="flex justify-between items-center">
+                                <span>3. รถ 9 (สาย 1):</span>
+                                <strong class="text-orange-600">8.89%</strong>
+                            </li>
+                            <li class="flex justify-between items-center">
+                                <span>4. รถ 37 (สาย 2):</span>
+                                <strong class="text-orange-500">4.37%</strong>
+                            </li>
+                            <li class="flex justify-between items-center">
+                                <span>5. รถ 27 (สาย 9):</span>
+                                <strong class="text-yellow-700">3.95%</strong>
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="bg-purple-50 border-2 border-purple-300 rounded-xl p-6">
+                        <h3 class="text-2xl font-bold mb-4 text-purple-700 flex items-center">
+                            <i class="fas fa-map-marker-alt mr-3"></i>
+                            จุดที่มีปัญหาบ่อย (Top 3)
+                        </h3>
+                        <ol class="space-y-3 text-gray-800 text-sm">
+                            <li class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold">1. (18.799, 98.952)</span>
+                                    <span class="bg-red-600 text-white px-2 py-1 rounded-full text-xs font-bold">125 ครั้ง</span>
+                                </div>
+                            </li>
+                            <li class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold">2. (18.792, 98.956)</span>
+                                    <span class="bg-orange-600 text-white px-2 py-1 rounded-full text-xs font-bold">40 ครั้ง</span>
+                                </div>
+                            </li>
+                            <li class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold">3. (18.797, 98.960)</span>
+                                    <span class="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-bold">33 ครั้ง</span>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6 card-hover">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-green-500 pb-2">
+                    <i class="fas fa-lightbulb mr-2 text-green-600"></i>
+                    คำแนะนำในการแก้ไข
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="border-l-4 border-blue-500 bg-blue-50 p-4">
+                        <h3 class="font-bold text-lg text-blue-800 mb-2">
+                            <i class="fas fa-tools mr-2"></i>
+                            1. ตรวจสอบอุปกรณ์ GPS ของรถที่มีปัญหา
+                        </h3>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1 ml-4">
+                            <li>รถที่มี GPS = (0, 0) บ่อยครั้ง อาจมีปัญหาที่อุปกรณ์</li>
+                            <li>ตรวจเช็คการเชื่อมต่อ GPS module</li>
+                        </ul>
+                    </div>
+
+                    <div class="border-l-4 border-purple-500 bg-purple-50 p-4">
+                        <h3 class="font-bold text-lg text-purple-800 mb-2">
+                            <i class="fas fa-map-pin mr-2"></i>
+                            2. ตรวจสอบจุดที่มีปัญหาบ่อย (Hotspots)
+                        </h3>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1 ml-4">
+                            <li>อาจมีสิ่งกีดขวางสัญญาณ GPS (อาคารสูง, ต้นไม้หนา)</li>
+                            <li>พิจารณาติดตั้ง GPS relay หรือปรับปรุงสัญญาณ</li>
+                        </ul>
+                    </div>
+
+                    <div class="border-l-4 border-green-500 bg-green-50 p-4">
+                        <h3 class="font-bold text-lg text-green-800 mb-2">
+                            <i class="fas fa-database mr-2"></i>
+                            3. ปรับปรุงระบบบันทึกข้อมูล
+                        </h3>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1 ml-4">
+                            <li>ใช้ค่า accuracy ในการกรองข้อมูลที่ไม่น่าเชื่อถือ</li>
+                            <li>เพิ่มการ validate ข้อมูลก่อนบันทึก (ตรวจสอบว่าพิกัดอยู่ในเขต CMU)</li>
+                        </ul>
+                    </div>
+
+                    <div class="border-l-4 border-orange-500 bg-orange-50 p-4">
+                        <h3 class="font-bold text-lg text-orange-800 mb-2">
+                            <i class="fas fa-chart-line mr-2"></i>
+                            4. สำหรับ Data Analytics
+                        </h3>
+                        <ul class="list-disc list-inside text-gray-700 space-y-1 ml-4">
+                            <li>ใช้ Google Maps API Snap to Roads เพื่อปรับแก้เส้นทาง</li>
+                            <li>ใช้ Kalman Filter เพื่อ smooth GPS trajectory</li>
+                            <li>ลบข้อมูลที่เห็นได้ชัดว่าผิดปกติ (GPS = 0, teleporting)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6 mt-12">
+        <div class="container mx-auto max-w-7xl px-4 text-center">
+            <p class="text-gray-300">
+                <i class="fas fa-university mr-2"></i>
+                โปรแกรมวิเคราะห์ GPS รถรางมหาวิทยาลัยเชียงใหม่
+            </p>
+            <p class="text-gray-400 text-sm mt-2">
+                Developed for Prapakorn Kanjina
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables for map and markers
+        let map = null;
+        let routeMarkers = {}; // Store markers by route
+        let routeLayers = {}; // Store layer groups by route
+        
+        // Define colors for each route
+        const routeColors = {
+            1: '#EF4444', // Red
+            2: '#F97316', // Orange
+            3: '#F59E0B', // Amber
+            4: '#84CC16', // Lime
+            5: '#10B981', // Green
+            6: '#14B8A6', // Teal
+            7: '#06B6D4', // Cyan
+            8: '#3B82F6', // Blue
+            9: '#8B5CF6'  // Purple
+        };
+
+        // Embedded GPS loss location data (static data)
+        const gpsLossData = [
+{"lat":18.796946333,"lng":98.95992,"bus":"30","route":"2","time":"09:29:57","cluster":"0"},
+{"lat":18.798785514,"lng":98.959630669,"bus":"30","route":"2","time":"10:41:16","cluster":"0"},
+{"lat":18.798793291,"lng":98.959772607,"bus":"30","route":"2","time":"10:41:18","cluster":"0"},
+{"lat":18.798793493,"lng":98.960010681,"bus":"30","route":"2","time":"10:41:22","cluster":"0"},
+{"lat":18.798663976,"lng":98.960386193,"bus":"30","route":"2","time":"10:41:30","cluster":"0"},
+{"lat":18.798453464,"lng":98.960425725,"bus":"30","route":"2","time":"10:41:34","cluster":"0"},
+{"lat":18.798328406,"lng":98.960445941,"bus":"30","route":"2","time":"10:41:36","cluster":"0"},
+{"lat":18.798070999,"lng":98.960476437,"bus":"30","route":"2","time":"10:41:40","cluster":"0"},
+{"lat":18.79781705,"lng":98.960506486,"bus":"30","route":"2","time":"10:41:44","cluster":"0"},
+{"lat":18.797683264,"lng":98.960523189,"bus":"30","route":"2","time":"10:41:46","cluster":"0"},
+{"lat":18.796941337,"lng":98.960058626,"bus":"30","route":"2","time":"10:42:12","cluster":"0"},
+{"lat":18.796952128,"lng":98.959894519,"bus":"30","route":"2","time":"10:42:16","cluster":"0"},
+{"lat":18.799888609,"lng":98.951782849,"bus":"26","route":"2","time":"07:00:45","cluster":"1"},
+{"lat":18.7991265,"lng":98.952652333,"bus":"26","route":"2","time":"11:03:35","cluster":"1"},
+{"lat":18.799489501,"lng":98.953158773,"bus":"26","route":"2","time":"13:05:12","cluster":"1"},
+{"lat":18.799453567,"lng":98.95289345,"bus":"26","route":"2","time":"13:50:53","cluster":"1"},
+{"lat":18.799417726,"lng":98.95273495,"bus":"26","route":"2","time":"13:50:57","cluster":"1"},
+{"lat":18.802758,"lng":98.955878,"bus":"7","route":"3","time":"07:03:11","cluster":"2"},
+{"lat":18.799526667,"lng":98.952656,"bus":"7","route":"3","time":"08:02:06","cluster":"1"},
+{"lat":18.799486333,"lng":98.952658,"bus":"7","route":"3","time":"08:02:11","cluster":"1"},
+{"lat":18.802249167,"lng":98.951262833,"bus":"7","route":"3","time":"08:25:29","cluster":"3"},
+{"lat":18.799629167,"lng":98.952519,"bus":"7","route":"3","time":"08:55:53","cluster":"1"},
+{"lat":18.798674333,"lng":98.952914833,"bus":"7","route":"3","time":"08:58:34","cluster":"1"},
+{"lat":18.7978855,"lng":98.9523575,"bus":"7","route":"3","time":"08:58:55","cluster":"-1"},
+{"lat":18.799193667,"lng":98.952420667,"bus":"7","route":"3","time":"09:10:10","cluster":"1"},
+{"lat":18.798892333,"lng":98.952530833,"bus":"7","route":"3","time":"09:10:31","cluster":"1"},
+{"lat":18.800973,"lng":98.956987167,"bus":"7","route":"3","time":"09:14:03","cluster":"-1"},
+{"lat":18.801297,"lng":98.958203667,"bus":"7","route":"3","time":"09:14:53","cluster":"-1"},
+{"lat":18.799894,"lng":98.952814833,"bus":"7","route":"3","time":"11:45:48","cluster":"1"},
+{"lat":18.799543,"lng":98.953155167,"bus":"7","route":"3","time":"11:47:47","cluster":"1"},
+{"lat":18.802513667,"lng":98.955653,"bus":"7","route":"3","time":"11:49:37","cluster":"2"},
+{"lat":18.804918167,"lng":98.954407667,"bus":"7","route":"3","time":"11:51:03","cluster":"4"},
+{"lat":18.805534667,"lng":98.9536435,"bus":"7","route":"3","time":"11:51:29","cluster":"-1"},
+{"lat":18.806204667,"lng":98.951891333,"bus":"7","route":"3","time":"11:51:50","cluster":"5"},
+{"lat":18.804870167,"lng":98.949606167,"bus":"7","route":"3","time":"11:52:39","cluster":"6"},
+{"lat":18.804207,"lng":98.94933,"bus":"7","route":"3","time":"11:52:59","cluster":"7"},
+{"lat":18.803955667,"lng":98.949488167,"bus":"7","route":"3","time":"11:53:05","cluster":"7"},
+{"lat":18.803223,"lng":98.949660333,"bus":"7","route":"3","time":"11:53:59","cluster":"7"},
+{"lat":18.802667333,"lng":98.951347,"bus":"7","route":"3","time":"11:54:29","cluster":"3"},
+{"lat":18.802546833,"lng":98.951489667,"bus":"7","route":"3","time":"11:54:36","cluster":"3"},
+{"lat":18.802029333,"lng":98.9513315,"bus":"7","route":"3","time":"11:54:52","cluster":"3"},
+{"lat":18.801682167,"lng":98.9512655,"bus":"7","route":"3","time":"11:54:58","cluster":"3"},
+{"lat":18.801541667,"lng":98.951214833,"bus":"7","route":"3","time":"11:55:27","cluster":"3"},
+{"lat":18.8004935,"lng":98.951646667,"bus":"7","route":"3","time":"11:55:48","cluster":"1"},
+{"lat":18.7998325,"lng":98.952185667,"bus":"7","route":"3","time":"11:56:10","cluster":"1"},
+{"lat":18.7995965,"lng":98.953033167,"bus":"7","route":"3","time":"12:01:39","cluster":"1"},
+{"lat":18.799479,"lng":98.953157833,"bus":"7","route":"3","time":"12:02:43","cluster":"1"},
+{"lat":18.800701333,"lng":98.9559185,"bus":"7","route":"3","time":"12:04:06","cluster":"-1"},
+{"lat":18.8031855,"lng":98.9499415,"bus":"7","route":"3","time":"12:10:05","cluster":"7"},
+{"lat":18.802527333,"lng":98.951400333,"bus":"7","route":"3","time":"12:10:27","cluster":"3"},
+{"lat":18.800243833,"lng":98.951691667,"bus":"7","route":"3","time":"12:12:02","cluster":"1"},
+{"lat":18.800117667,"lng":98.951979333,"bus":"7","route":"3","time":"12:12:07","cluster":"1"},
+{"lat":18.799616833,"lng":98.952436167,"bus":"7","route":"3","time":"12:12:29","cluster":"1"},
+{"lat":18.7995235,"lng":98.952555167,"bus":"7","route":"3","time":"12:13:09","cluster":"1"},
+{"lat":18.798947167,"lng":98.952393167,"bus":"7","route":"3","time":"12:13:43","cluster":"1"},
+{"lat":18.799176667,"lng":98.952462167,"bus":"7","route":"3","time":"12:14:09","cluster":"1"},
+{"lat":18.802251685,"lng":98.95460634,"bus":"7","route":"3","time":"19:50:54","cluster":"8"},
+{"lat":18.802109667,"lng":98.95607,"bus":"7","route":"3","time":"19:53:40","cluster":"-1"},
+{"lat":18.801559833,"lng":98.960147833,"bus":"7","route":"3","time":"19:54:23","cluster":"-1"},
+{"lat":18.802160667,"lng":98.9533635,"bus":"7","route":"3","time":"20:00:48","cluster":"-1"},
+{"lat":18.803172167,"lng":98.956138167,"bus":"7","route":"3","time":"20:03:23","cluster":"-1"},
+{"lat":18.8128885,"lng":98.954621333,"bus":"7","route":"3","time":"20:04:55","cluster":"-1"},
+{"lat":18.808059,"lng":98.961115167,"bus":"7","route":"3","time":"20:15:26","cluster":"-1"},
+{"lat":18.7766665,"lng":98.965482167,"bus":"7","route":"3","time":"20:17:39","cluster":"-1"},
+{"lat":18.806876333,"lng":98.9557325,"bus":"7","route":"3","time":"20:22:43","cluster":"9"},
+{"lat":18.803360833,"lng":98.951319,"bus":"7","route":"3","time":"20:24:13","cluster":"10"},
+{"lat":18.803377333,"lng":98.951242167,"bus":"7","route":"3","time":"20:24:15","cluster":"10"},
+{"lat":18.802641833,"lng":98.950998667,"bus":"7","route":"3","time":"20:24:34","cluster":"3"},
+{"lat":18.802304167,"lng":98.949696,"bus":"7","route":"3","time":"20:25:01","cluster":"11"},
+{"lat":18.802107833,"lng":98.949656,"bus":"7","route":"3","time":"20:25:05","cluster":"11"},
+{"lat":18.8007665,"lng":98.951718,"bus":"7","route":"3","time":"20:26:25","cluster":"1"},
+{"lat":18.798688333,"lng":98.9525295,"bus":"7","route":"3","time":"20:27:21","cluster":"1"},
+{"lat":18.799276364,"lng":98.952557488,"bus":"20","route":"8","time":"18:34:31","cluster":"1"},
+{"lat":18.804656467,"lng":98.953648393,"bus":"18","route":"1","time":"08:05:55","cluster":"-1"},
+{"lat":18.796086326,"lng":98.955639254,"bus":"18","route":"1","time":"08:53:17","cluster":"12"},
+{"lat":18.796750442,"lng":98.952271904,"bus":"18","route":"1","time":"09:17:40","cluster":"13"},
+{"lat":18.796765102,"lng":98.952480966,"bus":"18","route":"1","time":"09:17:46","cluster":"13"},
+{"lat":18.80734834,"lng":98.955664302,"bus":"18","route":"1","time":"13:55:03","cluster":"9"},
+{"lat":18.79591996,"lng":98.953901051,"bus":"18","route":"1","time":"18:22:39","cluster":"-1"},
+{"lat":18.797283032,"lng":98.952662878,"bus":"18","route":"1","time":"18:22:59","cluster":"-1"},
+{"lat":18.795865115,"lng":98.952845751,"bus":"18","route":"1","time":"18:23:18","cluster":"14"},
+{"lat":18.795611008,"lng":98.952577251,"bus":"18","route":"1","time":"18:23:28","cluster":"14"},
+{"lat":18.795610186,"lng":98.9524881,"bus":"18","route":"1","time":"18:23:32","cluster":"14"},
+{"lat":18.794056172,"lng":98.951809678,"bus":"18","route":"1","time":"18:24:03","cluster":"15"},
+{"lat":18.793601441,"lng":98.952361306,"bus":"18","route":"1","time":"18:24:17","cluster":"-1"},
+{"lat":18.793481376,"lng":98.953473075,"bus":"18","route":"1","time":"18:24:33","cluster":"-1"},
+{"lat":18.792698477,"lng":98.955160363,"bus":"18","route":"1","time":"18:24:58","cluster":"16"},
+{"lat":18.792797345,"lng":98.955437299,"bus":"18","route":"1","time":"18:25:12","cluster":"16"},
+{"lat":18.793098238,"lng":98.95581146,"bus":"18","route":"1","time":"18:25:33","cluster":"17"},
+{"lat":18.79248187,"lng":98.956046589,"bus":"18","route":"1","time":"18:25:48","cluster":"17"},
+{"lat":18.790854605,"lng":98.95630326,"bus":"18","route":"1","time":"18:26:40","cluster":"18"},
+{"lat":18.790758748,"lng":98.956371048,"bus":"18","route":"1","time":"18:26:44","cluster":"18"},
+{"lat":18.790062744,"lng":98.956456249,"bus":"18","route":"1","time":"18:27:02","cluster":"-1"},
+{"lat":18.789131494,"lng":98.958112126,"bus":"18","route":"1","time":"18:28:17","cluster":"-1"},
+{"lat":18.790612989,"lng":98.957589944,"bus":"18","route":"1","time":"18:28:46","cluster":"-1"},
+{"lat":18.792113074,"lng":98.956141941,"bus":"18","route":"1","time":"18:29:08","cluster":"17"},
+{"lat":18.792274058,"lng":98.956439022,"bus":"18","route":"1","time":"18:29:12","cluster":"17"},
+{"lat":18.792344077,"lng":98.957555007,"bus":"18","route":"1","time":"18:29:29","cluster":"17"},
+{"lat":18.792148064,"lng":98.957428737,"bus":"18","route":"1","time":"18:29:36","cluster":"17"},
+{"lat":18.792128655,"lng":98.957440898,"bus":"18","route":"1","time":"18:29:38","cluster":"17"},
+{"lat":18.792797213,"lng":98.956894701,"bus":"18","route":"1","time":"18:29:45","cluster":"17"},
+{"lat":18.794731233,"lng":98.95494613,"bus":"18","route":"1","time":"18:29:53","cluster":"-1"},
+{"lat":18.793547693,"lng":98.955509621,"bus":"18","route":"1","time":"18:29:58","cluster":"17"},
+{"lat":18.7929797,"lng":98.956210896,"bus":"18","route":"1","time":"18:30:04","cluster":"17"},
+{"lat":18.794477299,"lng":98.958151937,"bus":"18","route":"1","time":"18:31:12","cluster":"-1"},
+{"lat":18.795130015,"lng":98.958307802,"bus":"18","route":"1","time":"18:31:25","cluster":"-1"},
+{"lat":18.795385162,"lng":98.956869791,"bus":"18","route":"1","time":"18:31:52","cluster":"19"},
+{"lat":18.795896156,"lng":98.95743352,"bus":"18","route":"1","time":"18:32:35","cluster":"19"},
+{"lat":18.798181712,"lng":98.950656396,"bus":"18","route":"1","time":"18:35:03","cluster":"-1"},
+{"lat":18.798684956,"lng":98.950579529,"bus":"18","route":"1","time":"18:35:14","cluster":"-1"},
+{"lat":18.799176877,"lng":98.95203152,"bus":"18","route":"1","time":"18:35:38","cluster":"1"},
+{"lat":18.799232117,"lng":98.952260932,"bus":"18","route":"1","time":"18:35:42","cluster":"1"},
+{"lat":18.799608308,"lng":98.95299449,"bus":"18","route":"1","time":"18:36:19","cluster":"1"},
+{"lat":18.800612202,"lng":98.953534346,"bus":"18","route":"1","time":"18:38:11","cluster":"20"},
+{"lat":18.802013965,"lng":98.954546372,"bus":"18","route":"1","time":"18:38:51","cluster":"8"},
+{"lat":18.803101128,"lng":98.954272796,"bus":"18","route":"1","time":"18:39:10","cluster":"21"},
+{"lat":18.80504824,"lng":98.954475346,"bus":"18","route":"1","time":"18:39:53","cluster":"4"},
+{"lat":18.805430811,"lng":98.955081949,"bus":"18","route":"1","time":"18:40:05","cluster":"22"},
+{"lat":18.801083006,"lng":98.954007773,"bus":"18","route":"1","time":"18:48:43","cluster":"-1"},
+{"lat":18.800342337,"lng":98.953768916,"bus":"18","route":"1","time":"18:49:31","cluster":"20"},
+{"lat":18.799546142,"lng":98.95296491,"bus":"18","route":"1","time":"18:50:45","cluster":"1"},
+{"lat":18.798777541,"lng":98.951904717,"bus":"18","route":"1","time":"19:14:24","cluster":"1"},
+{"lat":18.796148193,"lng":98.955131563,"bus":"18","route":"1","time":"21:00:04","cluster":"12"},
+{"lat":18.796420886,"lng":98.953596163,"bus":"18","route":"1","time":"21:00:29","cluster":"23"},
+{"lat":18.796384069,"lng":98.953347968,"bus":"18","route":"1","time":"21:00:35","cluster":"23"},
+{"lat":18.796419414,"lng":98.953237402,"bus":"18","route":"1","time":"21:00:38","cluster":"23"},
+{"lat":18.796453647,"lng":98.953119205,"bus":"18","route":"1","time":"21:00:41","cluster":"23"},
+{"lat":18.799401988,"lng":98.952638144,"bus":"27","route":"9","time":"07:19:08","cluster":"1"},
+{"lat":18.794512473,"lng":98.957362142,"bus":"27","route":"9","time":"07:54:29","cluster":"24"},
+{"lat":18.799112167,"lng":98.952806,"bus":"27","route":"9","time":"09:41:44","cluster":"1"},
+{"lat":18.794673952,"lng":98.966872719,"bus":"27","route":"9","time":"11:27:47","cluster":"25"},
+{"lat":18.794785928,"lng":98.967228298,"bus":"27","route":"9","time":"11:28:25","cluster":"25"},
+{"lat":18.794774573,"lng":98.968013001,"bus":"27","route":"9","time":"11:28:35","cluster":"26"},
+{"lat":18.794786005,"lng":98.968286955,"bus":"27","route":"9","time":"11:28:42","cluster":"26"},
+{"lat":18.792807022,"lng":98.956982765,"bus":"27","route":"9","time":"12:12:55","cluster":"17"},
+{"lat":18.795912804,"lng":98.957649581,"bus":"27","route":"9","time":"12:15:18","cluster":"19"},
+{"lat":18.799496615,"lng":98.953292166,"bus":"27","route":"9","time":"12:22:13","cluster":"1"},
+{"lat":18.799005364,"lng":98.957519692,"bus":"27","route":"9","time":"13:41:47","cluster":"-1"},
+{"lat":18.794192791,"lng":98.954910466,"bus":"27","route":"9","time":"14:54:23","cluster":"-1"},
+{"lat":18.793391519,"lng":98.955267216,"bus":"27","route":"9","time":"14:54:57","cluster":"17"},
+{"lat":18.793473848,"lng":98.955871177,"bus":"27","route":"9","time":"14:55:22","cluster":"17"},
+{"lat":18.793408926,"lng":98.956100991,"bus":"27","route":"9","time":"14:55:31","cluster":"17"},
+{"lat":18.793301356,"lng":98.956227449,"bus":"27","route":"9","time":"14:55:37","cluster":"17"},
+{"lat":18.793105117,"lng":98.956365624,"bus":"27","route":"9","time":"14:55:42","cluster":"17"},
+{"lat":18.79256416,"lng":98.957434183,"bus":"27","route":"9","time":"14:56:14","cluster":"17"},
+{"lat":18.793184767,"lng":98.957536865,"bus":"27","route":"9","time":"14:56:43","cluster":"-1"},
+{"lat":18.793674689,"lng":98.957624289,"bus":"27","route":"9","time":"14:56:56","cluster":"27"},
+{"lat":18.793719873,"lng":98.957748475,"bus":"27","route":"9","time":"14:57:08","cluster":"27"},
+{"lat":18.799404498,"lng":98.957207861,"bus":"27","route":"9","time":"15:03:23","cluster":"28"},
+{"lat":18.79941,"lng":98.95489,"bus":"27","route":"9","time":"15:03:59","cluster":"29"},
+{"lat":18.799603667,"lng":98.953779833,"bus":"27","route":"9","time":"15:05:37","cluster":"1"},
+{"lat":18.7970195,"lng":98.959878333,"bus":"27","route":"9","time":"17:07:30","cluster":"0"},
+{"lat":18.796128757,"lng":98.959197522,"bus":"27","route":"9","time":"18:15:26","cluster":"30"},
+{"lat":18.796187122,"lng":98.959211505,"bus":"27","route":"9","time":"18:15:40","cluster":"30"},
+{"lat":18.796364084,"lng":98.959506306,"bus":"27","route":"9","time":"18:15:52","cluster":"30"},
+{"lat":18.796153916,"lng":98.959740419,"bus":"27","route":"9","time":"18:16:06","cluster":"30"},
+{"lat":18.795224587,"lng":98.957569264,"bus":"27","route":"9","time":"18:16:29","cluster":"19"},
+{"lat":18.795341751,"lng":98.957482556,"bus":"27","route":"9","time":"18:16:50","cluster":"19"},
+{"lat":18.796193775,"lng":98.958510884,"bus":"27","route":"9","time":"18:17:31","cluster":"31"},
+{"lat":18.799104196,"lng":98.952714293,"bus":"27","route":"9","time":"18:57:48","cluster":"1"},
+{"lat":18.799115012,"lng":98.952722945,"bus":"27","route":"9","time":"18:57:53","cluster":"1"},
+{"lat":18.799161096,"lng":98.952698126,"bus":"27","route":"9","time":"19:19:25","cluster":"1"},
+{"lat":18.80546909,"lng":98.955331272,"bus":"22","route":"8","time":"09:40:58","cluster":"22"},
+{"lat":18.798932794,"lng":98.958309602,"bus":"4","route":"7","time":"11:20:29","cluster":"-1"},
+{"lat":18.799484141,"lng":98.952751501,"bus":"31","route":"3","time":"09:01:35","cluster":"1"},
+{"lat":18.799486776,"lng":98.95274599,"bus":"31","route":"3","time":"09:01:37","cluster":"1"},
+{"lat":18.799705941,"lng":98.953571267,"bus":"31","route":"3","time":"09:02:02","cluster":"1"},
+{"lat":18.803257534,"lng":98.949727584,"bus":"31","route":"3","time":"16:23:05","cluster":"7"},
+{"lat":18.799353627,"lng":98.952426529,"bus":"31","route":"3","time":"17:18:40","cluster":"1"},
+{"lat":18.799331866,"lng":98.952477891,"bus":"31","route":"3","time":"17:21:54","cluster":"1"},
+{"lat":18.799530948,"lng":98.953614721,"bus":"31","route":"3","time":"21:01:45","cluster":"1"},
+{"lat":18.806258133,"lng":98.951779069,"bus":"31","route":"3","time":"21:09:04","cluster":"5"},
+{"lat":18.799423198,"lng":98.952462412,"bus":"31","route":"3","time":"21:13:03","cluster":"1"},
+{"lat":18.799125437,"lng":98.952763348,"bus":"31","route":"3","time":"21:15:28","cluster":"1"},
+{"lat":18.799090931,"lng":98.952729427,"bus":"31","route":"3","time":"21:15:35","cluster":"1"},
+{"lat":18.796629608,"lng":98.952989156,"bus":"10","route":"9","time":"09:08:23","cluster":"23"},
+{"lat":18.79946335,"lng":98.953921527,"bus":"10","route":"9","time":"11:22:20","cluster":"1"},
+{"lat":18.799447554,"lng":98.953786808,"bus":"10","route":"9","time":"11:22:24","cluster":"1"},
+{"lat":18.799439352,"lng":98.953598637,"bus":"10","route":"9","time":"11:22:28","cluster":"1"},
+{"lat":18.796847426,"lng":98.960006535,"bus":"10","route":"9","time":"11:31:32","cluster":"0"},
+{"lat":18.79560423,"lng":98.957204733,"bus":"10","route":"9","time":"12:54:15","cluster":"19"},
+{"lat":18.795704114,"lng":98.957209736,"bus":"10","route":"9","time":"12:54:24","cluster":"19"},
+{"lat":18.797105313,"lng":98.959796425,"bus":"10","route":"9","time":"15:17:57","cluster":"0"},
+{"lat":18.799476665,"lng":98.956530161,"bus":"10","route":"9","time":"20:48:21","cluster":"28"},
+{"lat":18.803200356,"lng":98.951841937,"bus":"2","route":"7","time":"16:11:17","cluster":"-1"},
+{"lat":18.798966466,"lng":98.952835204,"bus":"39","route":"5","time":"10:45:17","cluster":"1"},
+{"lat":18.799479404,"lng":98.953229123,"bus":"39","route":"5","time":"11:54:22","cluster":"1"},
+{"lat":18.79899454,"lng":98.953295643,"bus":"39","route":"5","time":"11:54:35","cluster":"1"},
+{"lat":18.796399119,"lng":98.953898269,"bus":"39","route":"5","time":"11:55:32","cluster":"23"},
+{"lat":18.792584235,"lng":98.957027795,"bus":"39","route":"5","time":"11:58:04","cluster":"17"},
+{"lat":18.792385616,"lng":98.957586348,"bus":"39","route":"5","time":"12:00:00","cluster":"17"},
+{"lat":18.792148762,"lng":98.958004147,"bus":"39","route":"5","time":"12:00:17","cluster":"17"},
+{"lat":18.793511175,"lng":98.954716141,"bus":"39","route":"5","time":"15:52:06","cluster":"32"},
+{"lat":18.796265874,"lng":98.952576078,"bus":"39","route":"5","time":"16:01:41","cluster":"14"},
+{"lat":18.799366885,"lng":98.952500219,"bus":"39","route":"5","time":"16:17:50","cluster":"1"},
+{"lat":18.799362076,"lng":98.952496754,"bus":"39","route":"5","time":"16:17:53","cluster":"1"},
+{"lat":18.799464419,"lng":98.952646351,"bus":"39","route":"5","time":"16:18:34","cluster":"1"},
+{"lat":18.794324401,"lng":98.951554106,"bus":"39","route":"5","time":"16:44:39","cluster":"15"},
+{"lat":18.798843062,"lng":98.95128368,"bus":"39","route":"5","time":"16:49:28","cluster":"1"},
+{"lat":18.799114428,"lng":98.952817283,"bus":"39","route":"5","time":"16:51:16","cluster":"1"},
+{"lat":18.799142647,"lng":98.952511485,"bus":"39","route":"5","time":"17:01:40","cluster":"1"},
+{"lat":18.796676063,"lng":98.953418644,"bus":"39","route":"5","time":"17:05:47","cluster":"23"},
+{"lat":18.79344181,"lng":98.955852817,"bus":"39","route":"5","time":"17:09:10","cluster":"17"},
+{"lat":18.79300771,"lng":98.955877369,"bus":"39","route":"5","time":"17:09:20","cluster":"17"},
+{"lat":18.792910328,"lng":98.95593419,"bus":"39","route":"5","time":"17:09:22","cluster":"17"},
+{"lat":18.792753817,"lng":98.95601015,"bus":"39","route":"5","time":"17:09:27","cluster":"17"},
+{"lat":18.794320916,"lng":98.958974054,"bus":"39","route":"5","time":"17:14:30","cluster":"33"},
+{"lat":18.794486656,"lng":98.958980353,"bus":"39","route":"5","time":"17:14:33","cluster":"33"},
+{"lat":18.795139729,"lng":98.958949085,"bus":"39","route":"5","time":"17:15:40","cluster":"33"},
+{"lat":18.795139159,"lng":98.958947764,"bus":"39","route":"5","time":"17:15:42","cluster":"33"},
+{"lat":18.795124755,"lng":98.958943022,"bus":"39","route":"5","time":"17:15:49","cluster":"33"},
+{"lat":18.796392537,"lng":98.953817797,"bus":"39","route":"5","time":"17:20:46","cluster":"23"},
+{"lat":18.793469867,"lng":98.95476506,"bus":"39","route":"5","time":"18:07:43","cluster":"32"},
+{"lat":18.79899494,"lng":98.951491372,"bus":"39","route":"5","time":"18:50:30","cluster":"1"},
+{"lat":18.799068327,"lng":98.951557728,"bus":"39","route":"5","time":"18:50:32","cluster":"1"},
+{"lat":18.799272902,"lng":98.951751851,"bus":"39","route":"5","time":"18:50:37","cluster":"1"},
+{"lat":18.799006046,"lng":98.952500462,"bus":"39","route":"5","time":"18:52:18","cluster":"1"},
+{"lat":18.80005245,"lng":98.949840785,"bus":"39","route":"5","time":"19:40:47","cluster":"-1"},
+{"lat":18.79973922,"lng":98.953152861,"bus":"39","route":"5","time":"19:41:19","cluster":"1"},
+{"lat":18.799836589,"lng":98.95316741,"bus":"39","route":"5","time":"19:41:21","cluster":"1"},
+{"lat":18.796536193,"lng":98.953118347,"bus":"39","route":"5","time":"20:47:10","cluster":"23"},
+{"lat":18.794780506,"lng":98.954383467,"bus":"9","route":"1","time":"09:35:12","cluster":"34"},
+{"lat":18.794636204,"lng":98.954414842,"bus":"9","route":"1","time":"09:35:14","cluster":"34"},
+{"lat":18.8072865,"lng":98.955659,"bus":"9","route":"1","time":"10:00:02","cluster":"9"},
+{"lat":18.804413746,"lng":98.957429139,"bus":"9","route":"1","time":"15:53:28","cluster":"-1"},
+{"lat":18.804766542,"lng":98.956821106,"bus":"9","route":"1","time":"15:53:38","cluster":"-1"},
+{"lat":18.806068383,"lng":98.956191336,"bus":"9","route":"1","time":"15:54:06","cluster":"-1"},
+{"lat":18.808158681,"lng":98.955927063,"bus":"9","route":"1","time":"15:55:11","cluster":"-1"},
+{"lat":18.807661833,"lng":98.955087667,"bus":"9","route":"1","time":"16:00:25","cluster":"35"},
+{"lat":18.799456893,"lng":98.951185251,"bus":"9","route":"1","time":"19:49:49","cluster":"-1"},
+{"lat":18.799365795,"lng":98.950527529,"bus":"9","route":"1","time":"19:50:26","cluster":"-1"},
+{"lat":18.796862819,"lng":98.950151891,"bus":"9","route":"1","time":"19:51:55","cluster":"36"},
+{"lat":18.796593397,"lng":98.950270858,"bus":"9","route":"1","time":"19:52:05","cluster":"36"},
+{"lat":18.796439579,"lng":98.950288848,"bus":"9","route":"1","time":"19:52:08","cluster":"36"},
+{"lat":18.795862216,"lng":98.952553603,"bus":"9","route":"1","time":"19:53:05","cluster":"14"},
+{"lat":18.807400686,"lng":98.955185758,"bus":"9","route":"1","time":"20:56:03","cluster":"35"},
+{"lat":18.807490562,"lng":98.955161794,"bus":"9","route":"1","time":"20:57:34","cluster":"35"},
+{"lat":18.807496134,"lng":98.955159171,"bus":"9","route":"1","time":"20:57:37","cluster":"35"},
+{"lat":18.792317274,"lng":98.957547079,"bus":"9","route":"1","time":"21:14:04","cluster":"17"},
+{"lat":18.792313221,"lng":98.957552081,"bus":"9","route":"1","time":"21:14:06","cluster":"17"},
+{"lat":18.792296416,"lng":98.957583631,"bus":"9","route":"1","time":"21:14:14","cluster":"17"},
+{"lat":18.792089617,"lng":98.958222321,"bus":"9","route":"1","time":"21:14:39","cluster":"17"},
+{"lat":18.795741502,"lng":98.958582006,"bus":"9","route":"1","time":"21:16:33","cluster":"-1"},
+{"lat":18.801308109,"lng":98.951361103,"bus":"28","route":"9","time":"10:35:34","cluster":"3"},
+{"lat":18.801296991,"lng":98.95137775,"bus":"28","route":"9","time":"10:35:36","cluster":"3"},
+{"lat":18.801309015,"lng":98.951391546,"bus":"28","route":"9","time":"10:35:38","cluster":"3"},
+{"lat":18.801182862,"lng":98.951348621,"bus":"28","route":"9","time":"10:35:40","cluster":"3"},
+{"lat":18.80105595,"lng":98.951316412,"bus":"28","route":"9","time":"10:35:42","cluster":"3"},
+{"lat":18.801137522,"lng":98.951340821,"bus":"28","route":"9","time":"10:35:45","cluster":"3"},
+{"lat":18.799189282,"lng":98.953023145,"bus":"28","route":"9","time":"12:11:23","cluster":"1"},
+{"lat":18.799312018,"lng":98.953036326,"bus":"28","route":"9","time":"12:11:57","cluster":"1"},
+{"lat":18.799287808,"lng":98.952995201,"bus":"28","route":"9","time":"12:12:03","cluster":"1"},
+{"lat":18.799656663,"lng":98.952936186,"bus":"28","route":"9","time":"12:12:28","cluster":"1"},
+{"lat":18.798495437,"lng":98.953881628,"bus":"28","route":"9","time":"12:14:38","cluster":"-1"},
+{"lat":18.798913776,"lng":98.953514287,"bus":"28","route":"9","time":"12:15:19","cluster":"1"},
+{"lat":18.799194258,"lng":98.952610795,"bus":"28","route":"9","time":"12:50:26","cluster":"1"},
+{"lat":18.797321759,"lng":98.960472605,"bus":"28","route":"9","time":"14:02:04","cluster":"0"},
+{"lat":18.798817234,"lng":98.959918513,"bus":"28","route":"9","time":"14:02:28","cluster":"0"},
+{"lat":18.799108984,"lng":98.959838649,"bus":"28","route":"9","time":"14:02:36","cluster":"0"},
+{"lat":18.798990511,"lng":98.959935417,"bus":"28","route":"9","time":"14:02:44","cluster":"0"},
+{"lat":18.798956211,"lng":98.959777269,"bus":"28","route":"9","time":"14:02:48","cluster":"0"},
+{"lat":18.798340072,"lng":98.959752267,"bus":"28","route":"9","time":"14:03:01","cluster":"-1"},
+{"lat":18.798167329,"lng":98.958942375,"bus":"28","route":"9","time":"14:03:18","cluster":"37"},
+{"lat":18.799563408,"lng":98.957130283,"bus":"28","route":"9","time":"14:03:45","cluster":"28"},
+{"lat":18.799362085,"lng":98.956655057,"bus":"28","route":"9","time":"14:03:56","cluster":"28"},
+{"lat":18.799488392,"lng":98.956070872,"bus":"28","route":"9","time":"14:04:01","cluster":"28"},
+{"lat":18.79955897,"lng":98.953543425,"bus":"28","route":"9","time":"14:04:36","cluster":"1"},
+{"lat":18.799381327,"lng":98.95353093,"bus":"28","route":"9","time":"14:06:02","cluster":"1"},
+{"lat":18.799360399,"lng":98.953213601,"bus":"28","route":"9","time":"14:06:11","cluster":"1"},
+{"lat":18.799182865,"lng":98.953055427,"bus":"28","route":"9","time":"14:07:32","cluster":"1"},
+{"lat":18.799302401,"lng":98.953200677,"bus":"28","route":"9","time":"14:07:59","cluster":"1"},
+{"lat":18.799145523,"lng":98.952577719,"bus":"28","route":"9","time":"14:14:46","cluster":"1"},
+{"lat":18.799228073,"lng":98.952781185,"bus":"28","route":"9","time":"14:32:00","cluster":"1"},
+{"lat":18.792730765,"lng":98.956124883,"bus":"28","route":"9","time":"15:10:27","cluster":"17"},
+{"lat":18.792603802,"lng":98.956209734,"bus":"28","route":"9","time":"15:10:35","cluster":"17"},
+{"lat":18.792524636,"lng":98.956425627,"bus":"28","route":"9","time":"15:10:39","cluster":"17"},
+{"lat":18.79247356,"lng":98.956566956,"bus":"28","route":"9","time":"15:10:42","cluster":"17"},
+{"lat":18.790045605,"lng":98.957227818,"bus":"28","route":"9","time":"16:10:44","cluster":"-1"},
+{"lat":18.786248635,"lng":98.958737934,"bus":"28","route":"9","time":"16:20:03","cluster":"-1"},
+{"lat":18.785242469,"lng":98.958717983,"bus":"28","route":"9","time":"16:20:14","cluster":"-1"},
+{"lat":18.782098377,"lng":98.957690717,"bus":"28","route":"9","time":"16:20:28","cluster":"-1"},
+{"lat":18.769690043,"lng":98.956317444,"bus":"28","route":"9","time":"16:20:42","cluster":"-1"},
+{"lat":18.76228329,"lng":98.957307534,"bus":"28","route":"9","time":"16:20:51","cluster":"-1"},
+{"lat":18.749195287,"lng":98.960773429,"bus":"28","route":"9","time":"16:21:03","cluster":"-1"},
+{"lat":18.730533694,"lng":98.962081506,"bus":"28","route":"9","time":"16:21:21","cluster":"-1"},
+{"lat":18.729507241,"lng":98.960411985,"bus":"28","route":"9","time":"16:21:24","cluster":"-1"},
+{"lat":18.723279176,"lng":98.956143734,"bus":"28","route":"9","time":"16:21:37","cluster":"-1"},
+{"lat":18.695089307,"lng":98.968860799,"bus":"28","route":"9","time":"16:22:27","cluster":"-1"},
+{"lat":18.681611365,"lng":98.970496119,"bus":"28","route":"9","time":"16:22:54","cluster":"-1"},
+{"lat":18.679354922,"lng":98.969887989,"bus":"28","route":"9","time":"16:22:59","cluster":"-1"},
+{"lat":18.674083349,"lng":98.97202744,"bus":"28","route":"9","time":"16:23:11","cluster":"-1"},
+{"lat":18.670967158,"lng":98.972514955,"bus":"28","route":"9","time":"16:23:19","cluster":"-1"},
+{"lat":18.669884627,"lng":98.972706083,"bus":"28","route":"9","time":"16:23:27","cluster":"-1"},
+{"lat":18.663555504,"lng":98.97408031,"bus":"28","route":"9","time":"16:23:40","cluster":"-1"},
+{"lat":18.662290186,"lng":98.97440107,"bus":"28","route":"9","time":"16:23:43","cluster":"-1"},
+{"lat":18.659475693,"lng":98.975126811,"bus":"28","route":"9","time":"16:23:48","cluster":"-1"},
+{"lat":18.657466155,"lng":98.975476469,"bus":"28","route":"9","time":"16:23:51","cluster":"-1"},
+{"lat":18.641805394,"lng":98.977563538,"bus":"28","route":"9","time":"16:24:17","cluster":"-1"},
+{"lat":18.635692418,"lng":98.980404392,"bus":"28","route":"9","time":"16:24:33","cluster":"-1"},
+{"lat":18.629126743,"lng":98.98008462,"bus":"28","route":"9","time":"16:24:42","cluster":"-1"},
+{"lat":18.622737643,"lng":98.981571079,"bus":"28","route":"9","time":"16:24:52","cluster":"-1"},
+{"lat":18.603502845,"lng":98.98341623,"bus":"28","route":"9","time":"16:25:36","cluster":"-1"},
+{"lat":18.594659215,"lng":98.990835133,"bus":"28","route":"9","time":"16:26:18","cluster":"-1"},
+{"lat":18.583563687,"lng":99.003888413,"bus":"28","route":"9","time":"16:26:57","cluster":"-1"},
+{"lat":18.576886926,"lng":99.00673351,"bus":"28","route":"9","time":"16:27:14","cluster":"-1"},
+{"lat":18.56829052,"lng":99.008670369,"bus":"28","route":"9","time":"16:27:32","cluster":"-1"},
+{"lat":18.565879336,"lng":99.010043559,"bus":"28","route":"9","time":"16:27:38","cluster":"-1"},
+{"lat":18.56298603,"lng":99.011500144,"bus":"28","route":"9","time":"16:27:42","cluster":"-1"},
+{"lat":18.553104746,"lng":99.017344209,"bus":"28","route":"9","time":"16:28:02","cluster":"-1"},
+{"lat":18.552320892,"lng":99.018045735,"bus":"28","route":"9","time":"16:28:04","cluster":"-1"},
+{"lat":18.548509111,"lng":99.02148472,"bus":"28","route":"9","time":"16:28:12","cluster":"-1"},
+{"lat":18.796356596,"lng":98.958337816,"bus":"28","route":"9","time":"16:38:06","cluster":"31"},
+{"lat":18.797258253,"lng":98.958659269,"bus":"28","route":"9","time":"16:38:12","cluster":"-1"},
+{"lat":18.798263579,"lng":98.958695861,"bus":"28","route":"9","time":"16:41:30","cluster":"37"},
+{"lat":18.797977018,"lng":98.958352047,"bus":"28","route":"9","time":"16:41:52","cluster":"37"},
+{"lat":18.797944821,"lng":98.958307151,"bus":"28","route":"9","time":"16:41:54","cluster":"37"},
+{"lat":18.797736894,"lng":98.954338358,"bus":"28","route":"9","time":"16:43:22","cluster":"38"},
+{"lat":18.797647907,"lng":98.954353613,"bus":"28","route":"9","time":"16:43:24","cluster":"38"},
+{"lat":18.799046887,"lng":98.953482968,"bus":"28","route":"9","time":"16:44:03","cluster":"1"},
+{"lat":18.799364837,"lng":98.953165941,"bus":"28","route":"9","time":"16:45:07","cluster":"1"},
+{"lat":18.799022198,"lng":98.952574408,"bus":"28","route":"9","time":"16:45:31","cluster":"1"},
+{"lat":18.795045951,"lng":98.954101076,"bus":"28","route":"9","time":"18:54:54","cluster":"34"},
+{"lat":18.793186,"lng":98.958872667,"bus":"28","route":"9","time":"18:55:44","cluster":"39"},
+{"lat":18.793049333,"lng":98.9593105,"bus":"28","route":"9","time":"18:56:01","cluster":"39"},
+{"lat":18.7930125,"lng":98.959361333,"bus":"28","route":"9","time":"18:56:21","cluster":"39"},
+{"lat":18.792999,"lng":98.959286167,"bus":"28","route":"9","time":"18:56:33","cluster":"39"},
+{"lat":18.793024833,"lng":98.959287833,"bus":"28","route":"9","time":"18:56:39","cluster":"39"},
+{"lat":18.792922,"lng":98.959290667,"bus":"28","route":"9","time":"18:56:53","cluster":"39"},
+{"lat":18.793036,"lng":98.960159167,"bus":"28","route":"9","time":"18:57:16","cluster":"-1"},
+{"lat":18.793397333,"lng":98.9619935,"bus":"28","route":"9","time":"18:57:34","cluster":"40"},
+{"lat":18.792974667,"lng":98.9618885,"bus":"28","route":"9","time":"18:57:46","cluster":"40"},
+{"lat":18.791217833,"lng":98.9625165,"bus":"28","route":"9","time":"18:58:07","cluster":"-1"},
+{"lat":18.789671667,"lng":98.963089667,"bus":"28","route":"9","time":"18:58:53","cluster":"-1"},
+{"lat":18.7908005,"lng":98.962167,"bus":"28","route":"9","time":"18:58:57","cluster":"-1"},
+{"lat":18.7913075,"lng":98.961820333,"bus":"28","route":"9","time":"18:59:08","cluster":"41"},
+{"lat":18.791493833,"lng":98.961621167,"bus":"28","route":"9","time":"18:59:21","cluster":"41"},
+{"lat":18.791526833,"lng":98.961768,"bus":"28","route":"9","time":"18:59:26","cluster":"41"},
+{"lat":18.791605,"lng":98.961994333,"bus":"28","route":"9","time":"18:59:32","cluster":"41"},
+{"lat":18.796972,"lng":98.959936833,"bus":"28","route":"9","time":"19:21:31","cluster":"0"},
+{"lat":18.797937667,"lng":98.9604615,"bus":"28","route":"9","time":"19:23:16","cluster":"0"},
+{"lat":18.798066,"lng":98.960552333,"bus":"28","route":"9","time":"19:23:23","cluster":"0"},
+{"lat":18.797283333,"lng":98.959898,"bus":"28","route":"9","time":"19:24:05","cluster":"0"},
+{"lat":18.797305333,"lng":98.959871333,"bus":"28","route":"9","time":"19:24:45","cluster":"0"},
+{"lat":18.797099667,"lng":98.9602725,"bus":"28","route":"9","time":"19:25:03","cluster":"0"},
+{"lat":18.7967845,"lng":98.959384667,"bus":"28","route":"9","time":"19:25:31","cluster":"30"},
+{"lat":18.796868667,"lng":98.960167167,"bus":"28","route":"9","time":"19:30:21","cluster":"0"},
+{"lat":18.796941167,"lng":98.960139,"bus":"28","route":"9","time":"19:30:26","cluster":"0"},
+{"lat":18.797027,"lng":98.9600795,"bus":"28","route":"9","time":"19:30:28","cluster":"0"},
+{"lat":18.7993135,"lng":98.952897,"bus":"28","route":"9","time":"19:39:12","cluster":"1"},
+{"lat":18.793977394,"lng":98.955547441,"bus":"28","route":"9","time":"21:16:09","cluster":"17"},
+{"lat":18.795597434,"lng":98.954318647,"bus":"37","route":"2","time":"10:51:28","cluster":"-1"},
+{"lat":18.797691032,"lng":98.953463512,"bus":"37","route":"2","time":"10:52:04","cluster":"-1"},
+{"lat":18.799343886,"lng":98.952549496,"bus":"37","route":"2","time":"11:43:02","cluster":"1"},
+{"lat":18.799454165,"lng":98.95197742,"bus":"37","route":"2","time":"11:43:54","cluster":"1"},
+{"lat":18.799730054,"lng":98.951735026,"bus":"37","route":"2","time":"11:44:05","cluster":"1"},
+{"lat":18.80516526,"lng":98.950050614,"bus":"37","route":"2","time":"11:48:17","cluster":"6"},
+{"lat":18.804955172,"lng":98.950680135,"bus":"37","route":"2","time":"11:48:30","cluster":"42"},
+{"lat":18.804867634,"lng":98.950951807,"bus":"37","route":"2","time":"11:48:35","cluster":"42"},
+{"lat":18.804686868,"lng":98.951361963,"bus":"37","route":"2","time":"11:48:40","cluster":"42"},
+{"lat":18.799117869,"lng":98.952813747,"bus":"37","route":"2","time":"13:42:54","cluster":"1"},
+{"lat":18.799266525,"lng":98.952404661,"bus":"37","route":"2","time":"14:58:52","cluster":"1"},
+{"lat":18.799313621,"lng":98.952602192,"bus":"37","route":"2","time":"14:59:41","cluster":"1"},
+{"lat":18.799359716,"lng":98.952569135,"bus":"37","route":"2","time":"15:00:00","cluster":"1"},
+{"lat":18.799835306,"lng":98.951846401,"bus":"37","route":"2","time":"15:00:40","cluster":"1"},
+{"lat":18.802071964,"lng":98.951339889,"bus":"37","route":"2","time":"15:02:04","cluster":"3"},
+{"lat":18.803270106,"lng":98.949701442,"bus":"37","route":"2","time":"15:03:10","cluster":"7"},
+{"lat":18.804390106,"lng":98.948409145,"bus":"37","route":"2","time":"15:04:28","cluster":"43"},
+{"lat":18.79935012,"lng":98.952828129,"bus":"37","route":"2","time":"15:10:40","cluster":"1"},
+{"lat":18.799311505,"lng":98.952617304,"bus":"37","route":"2","time":"15:14:58","cluster":"1"},
+{"lat":18.799851595,"lng":98.95193623,"bus":"37","route":"2","time":"15:15:53","cluster":"1"},
+{"lat":18.803335059,"lng":98.949448341,"bus":"37","route":"2","time":"15:17:46","cluster":"7"},
+{"lat":18.803704893,"lng":98.949216342,"bus":"37","route":"2","time":"15:17:59","cluster":"7"},
+{"lat":18.804394495,"lng":98.948324367,"bus":"37","route":"2","time":"15:18:49","cluster":"43"},
+{"lat":18.80506776,"lng":98.949848386,"bus":"37","route":"2","time":"15:19:42","cluster":"6"},
+{"lat":18.799649328,"lng":98.95538884,"bus":"37","route":"2","time":"15:23:59","cluster":"-1"},
+{"lat":18.799633536,"lng":98.954887835,"bus":"37","route":"2","time":"15:24:09","cluster":"29"},
+{"lat":18.799530995,"lng":98.954063276,"bus":"37","route":"2","time":"15:24:37","cluster":"1"},
+{"lat":18.799261376,"lng":98.952620462,"bus":"37","route":"2","time":"15:29:41","cluster":"1"},
+{"lat":18.803876709,"lng":98.953873207,"bus":"37","route":"2","time":"15:37:09","cluster":"-1"},
+{"lat":18.803504699,"lng":98.954276719,"bus":"37","route":"2","time":"15:37:21","cluster":"21"},
+{"lat":18.799405964,"lng":98.953136843,"bus":"37","route":"2","time":"15:41:24","cluster":"1"},
+{"lat":18.799249498,"lng":98.952820795,"bus":"37","route":"2","time":"16:04:08","cluster":"1"},
+{"lat":18.801893782,"lng":98.951042965,"bus":"37","route":"2","time":"17:02:04","cluster":"3"},
+{"lat":18.801950916,"lng":98.951011928,"bus":"37","route":"2","time":"17:02:08","cluster":"3"},
+{"lat":18.802080861,"lng":98.951076444,"bus":"37","route":"2","time":"17:02:13","cluster":"3"},
+{"lat":18.803020659,"lng":98.950459107,"bus":"37","route":"2","time":"17:02:37","cluster":"7"},
+{"lat":18.803191755,"lng":98.950037735,"bus":"37","route":"2","time":"17:02:46","cluster":"7"},
+{"lat":18.803230929,"lng":98.949750719,"bus":"37","route":"2","time":"17:02:51","cluster":"7"},
+{"lat":18.803219434,"lng":98.949508767,"bus":"37","route":"2","time":"17:02:56","cluster":"7"},
+{"lat":18.803353408,"lng":98.949151267,"bus":"37","route":"2","time":"17:03:19","cluster":"7"},
+{"lat":18.803387053,"lng":98.949199443,"bus":"37","route":"2","time":"17:03:25","cluster":"7"},
+{"lat":18.80345164,"lng":98.949141877,"bus":"37","route":"2","time":"17:03:31","cluster":"7"},
+{"lat":18.803516336,"lng":98.949065758,"bus":"37","route":"2","time":"17:03:34","cluster":"7"},
+{"lat":18.803698646,"lng":98.948938261,"bus":"37","route":"2","time":"17:03:38","cluster":"7"},
+{"lat":18.803954945,"lng":98.948800908,"bus":"37","route":"2","time":"17:03:45","cluster":"7"},
+{"lat":18.813563729,"lng":98.957584725,"bus":"37","route":"2","time":"17:04:21","cluster":"-1"},
+{"lat":18.809383486,"lng":98.949550651,"bus":"37","route":"2","time":"17:04:27","cluster":"-1"},
+{"lat":18.806978961,"lng":98.950234544,"bus":"37","route":"2","time":"17:04:29","cluster":"-1"},
+{"lat":18.805875266,"lng":98.947316303,"bus":"37","route":"2","time":"17:04:52","cluster":"44"},
+{"lat":18.805935066,"lng":98.947177093,"bus":"37","route":"2","time":"17:04:57","cluster":"44"},
+{"lat":18.805622732,"lng":98.946977781,"bus":"37","route":"2","time":"17:05:02","cluster":"44"},
+{"lat":18.805501297,"lng":98.946989449,"bus":"37","route":"2","time":"17:05:04","cluster":"44"},
+{"lat":18.804829786,"lng":98.947425531,"bus":"37","route":"2","time":"17:05:18","cluster":"45"},
+{"lat":18.804841204,"lng":98.947492234,"bus":"37","route":"2","time":"17:05:25","cluster":"45"},
+{"lat":18.805117726,"lng":98.947990706,"bus":"37","route":"2","time":"17:05:36","cluster":"46"},
+{"lat":18.805257975,"lng":98.948126473,"bus":"37","route":"2","time":"17:05:44","cluster":"46"},
+{"lat":18.805261716,"lng":98.948004755,"bus":"37","route":"2","time":"17:05:49","cluster":"46"},
+{"lat":18.805600319,"lng":98.948330282,"bus":"37","route":"2","time":"17:05:56","cluster":"46"},
+{"lat":18.80015974,"lng":98.951689932,"bus":"13","route":"5","time":"11:04:32","cluster":"1"},
+{"lat":18.79953761,"lng":98.952007758,"bus":"13","route":"5","time":"11:05:25","cluster":"1"},
+{"lat":18.793555369,"lng":98.955528103,"bus":"13","route":"5","time":"11:09:10","cluster":"17"},
+{"lat":18.79276527,"lng":98.956176354,"bus":"13","route":"5","time":"11:09:39","cluster":"17"},
+{"lat":18.794081658,"lng":98.957311644,"bus":"13","route":"5","time":"11:10:35","cluster":"24"},
+{"lat":18.793871942,"lng":98.957145132,"bus":"13","route":"5","time":"11:10:55","cluster":"24"},
+{"lat":18.792418358,"lng":98.957478116,"bus":"13","route":"5","time":"11:11:50","cluster":"17"},
+{"lat":18.79238874,"lng":98.957487122,"bus":"13","route":"5","time":"11:11:59","cluster":"17"},
+{"lat":18.792307564,"lng":98.957508334,"bus":"13","route":"5","time":"11:12:07","cluster":"17"},
+{"lat":18.792269348,"lng":98.957699408,"bus":"13","route":"5","time":"11:12:16","cluster":"17"},
+{"lat":18.792390379,"lng":98.958234085,"bus":"13","route":"5","time":"11:12:29","cluster":"17"},
+{"lat":18.794293098,"lng":98.958809313,"bus":"13","route":"5","time":"11:13:15","cluster":"33"},
+{"lat":18.794919132,"lng":98.958935796,"bus":"13","route":"5","time":"11:13:37","cluster":"33"},
+{"lat":18.799119283,"lng":98.952496793,"bus":"13","route":"5","time":"12:50:44","cluster":"1"},
+{"lat":18.798783338,"lng":98.950106436,"bus":"13","route":"5","time":"13:56:43","cluster":"-1"},
+{"lat":18.796156886,"lng":98.955443979,"bus":"13","route":"5","time":"16:21:36","cluster":"12"},
+{"lat":18.796280789,"lng":98.954836745,"bus":"13","route":"5","time":"16:21:45","cluster":"12"},
+{"lat":18.799180987,"lng":98.952783147,"bus":"13","route":"5","time":"16:30:33","cluster":"1"},
+{"lat":18.799068638,"lng":98.952412602,"bus":"13","route":"5","time":"17:12:26","cluster":"1"},
+{"lat":18.799224935,"lng":98.952629799,"bus":"13","route":"5","time":"19:29:21","cluster":"1"},
+{"lat":18.802037954,"lng":98.94742017,"bus":"35","route":"6","time":"11:18:13","cluster":"-1"},
+{"lat":18.798799829,"lng":98.959440893,"bus":"35","route":"6","time":"12:40:56","cluster":"0"},
+{"lat":18.798897447,"lng":98.951544048,"bus":"35","route":"6","time":"16:03:41","cluster":"1"},
+{"lat":18.798843202,"lng":98.951343997,"bus":"35","route":"6","time":"16:03:45","cluster":"1"},
+{"lat":18.798794653,"lng":98.951271135,"bus":"35","route":"6","time":"16:03:47","cluster":"1"},
+{"lat":18.80178799,"lng":98.948568462,"bus":"35","route":"6","time":"16:09:20","cluster":"47"},
+{"lat":18.801650371,"lng":98.948536065,"bus":"35","route":"6","time":"16:09:22","cluster":"47"},
+{"lat":18.799136678,"lng":98.952462324,"bus":"36","route":"4","time":"14:04:32","cluster":"1"},
+{"lat":18.799500088,"lng":98.953872797,"bus":"36","route":"4","time":"16:00:21","cluster":"1"},
+{"lat":18.799498577,"lng":98.953907311,"bus":"36","route":"4","time":"16:19:59","cluster":"1"},
+{"lat":18.799483207,"lng":98.953796851,"bus":"36","route":"4","time":"16:20:06","cluster":"1"},
+{"lat":18.799110303,"lng":98.953441737,"bus":"36","route":"4","time":"16:21:53","cluster":"1"},
+{"lat":18.799247414,"lng":98.952417364,"bus":"36","route":"4","time":"16:27:08","cluster":"1"},
+{"lat":18.799410484,"lng":98.952806583,"bus":"36","route":"4","time":"16:27:51","cluster":"1"},
+{"lat":18.799529537,"lng":98.953591119,"bus":"36","route":"4","time":"16:29:45","cluster":"1"},
+{"lat":18.79952158,"lng":98.956975846,"bus":"36","route":"4","time":"16:30:46","cluster":"28"},
+{"lat":18.798908506,"lng":98.953023499,"bus":"36","route":"4","time":"16:44:52","cluster":"1"},
+{"lat":18.797250022,"lng":98.960613809,"bus":"36","route":"4","time":"16:52:40","cluster":"0"},
+{"lat":18.7970209,"lng":98.96038444,"bus":"36","route":"4","time":"16:54:28","cluster":"0"},
+{"lat":18.799485011,"lng":98.956997081,"bus":"36","route":"4","time":"16:57:04","cluster":"28"},
+{"lat":18.799438088,"lng":98.95347773,"bus":"36","route":"4","time":"16:59:52","cluster":"1"},
+{"lat":18.799189247,"lng":98.952659987,"bus":"36","route":"4","time":"17:04:49","cluster":"1"},
+{"lat":18.79914582,"lng":98.952666144,"bus":"36","route":"4","time":"17:04:51","cluster":"1"},
+{"lat":18.799077434,"lng":98.95264787,"bus":"36","route":"4","time":"17:04:56","cluster":"1"},
+{"lat":18.799067409,"lng":98.952632699,"bus":"36","route":"4","time":"17:04:58","cluster":"1"},
+{"lat":18.799352626,"lng":98.953259851,"bus":"36","route":"4","time":"21:17:57","cluster":"1"},
+{"lat":18.799403182,"lng":98.952642447,"bus":"36","route":"4","time":"21:18:16","cluster":"1"},
+{"lat":18.799354716,"lng":98.9526019,"bus":"36","route":"4","time":"21:18:18","cluster":"1"},
+{"lat":18.799309197,"lng":98.952637366,"bus":"36","route":"4","time":"21:18:20","cluster":"1"},
+{"lat":18.79922377,"lng":98.952477244,"bus":"36","route":"4","time":"21:19:40","cluster":"1"},
+{"lat":18.79858612,"lng":98.960426501,"bus":"36","route":"4","time":"21:24:16","cluster":"0"}
+        ];
+
+        // Initialize map with embedded data
+        function initializeMap() {
+            // Create map centered on CMU
+            map = L.map('map').setView([18.7965, 98.9545], 14);
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(map);
+
+            // Use embedded GPS loss locations data
+            const data = gpsLossData;
+            
+            // Count points by route for legend
+            const routeCounts = {};
+            
+            // Initialize layer groups for each route
+            for (let i = 1; i <= 9; i++) {
+                routeLayers[i] = L.layerGroup().addTo(map);
+                routeMarkers[i] = [];
+            }
+            
+            // Add markers for each GPS problem location
+            data.forEach(row => {
+                if (row.lat && row.lng && row.route) {
+                    const lat = parseFloat(row.lat);
+                    const lng = parseFloat(row.lng);
+                    const route = row.route;
+                    const bus = row.bus;
+                    const time = row.time;
+                    
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        const color = routeColors[route] || '#6B7280';
+                        
+                        // Count for legend
+                        routeCounts[route] = (routeCounts[route] || 0) + 1;
+                        
+                        // Create circle marker
+                        const marker = L.circleMarker([lat, lng], {
+                            radius: 6,
+                            fillColor: color,
+                            color: '#ffffff',
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0.7
+                        });
+                        
+                        // Add popup with information
+                        marker.bindPopup(`
+                            <div class="text-sm">
+                                <strong class="text-lg" style="color: ${color}">สาย ${route}</strong><br>
+                                <strong>รถหมายเลข:</strong> ${bus}<br>
+                                <strong>เวลา:</strong> ${time}<br>
+                                <strong>พิกัด:</strong> ${lat.toFixed(6)}, ${lng.toFixed(6)}<br>
+                                <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" class="text-blue-600 hover:underline">
+                                    <i class="fas fa-external-link-alt"></i> เปิดใน Google Maps
+                                </a>
+                            </div>
+                        `);
+                        
+                        // Add to layer group
+                        if (routeLayers[route]) {
+                            marker.addTo(routeLayers[route]);
+                            routeMarkers[route].push(marker);
+                        }
+                    }
+                }
+            });
+            
+            // Create filter checkboxes
+            createRouteFilters(routeCounts);
+            
+            // Add legend to map
+            const legend = L.control({position: 'bottomright'});
+            
+            legend.onAdd = function(map) {
+                const div = L.DomUtil.create('div', 'legend');
+                div.innerHTML = '<strong class="text-base mb-2 block">สายรถ</strong>';
+                
+                // Sort routes numerically
+                const sortedRoutes = Object.keys(routeCounts).sort((a, b) => parseInt(a) - parseInt(b));
+                
+                sortedRoutes.forEach(route => {
+                    const color = routeColors[route] || '#6B7280';
+                    const count = routeCounts[route];
+                    div.innerHTML += `
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: ${color}"></div>
+                            <span class="text-sm">สาย ${route} (${count} จุด)</span>
+                        </div>
+                    `;
+                });
+                
+                return div;
+            };
+            
+            legend.addTo(map);
+            
+            console.log('Loaded GPS problem locations:', data.length, 'points');
+        }
+
+        // Create filter checkboxes
+        function createRouteFilters(routeCounts) {
+            const filterContainer = document.getElementById('routeFilters');
+            if (!filterContainer) return;
+            
+            filterContainer.innerHTML = '';
+            
+            // Sort routes numerically
+            const sortedRoutes = Object.keys(routeCounts).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            sortedRoutes.forEach(route => {
+                const color = routeColors[route] || '#6B7280';
+                const count = routeCounts[route];
+                
+                const div = document.createElement('div');
+                div.className = 'flex items-center';
+                div.innerHTML = `
+                    <label class="flex items-center cursor-pointer hover:bg-gray-100 p-2 rounded transition-colors">
+                        <input type="checkbox" 
+                               id="route-${route}" 
+                               class="route-checkbox mr-2" 
+                               data-route="${route}" 
+                               checked 
+                               onchange="toggleRoute(${route})">
+                        <div class="w-4 h-4 rounded-full mr-2" style="background-color: ${color}; border: 2px solid #333;"></div>
+                        <span class="text-sm font-semibold">สาย ${route} <span class="text-gray-500">(${count})</span></span>
+                    </label>
+                `;
+                filterContainer.appendChild(div);
+            });
+        }
+
+        // Toggle route visibility
+        function toggleRoute(route) {
+            const checkbox = document.getElementById(`route-${route}`);
+            if (!checkbox || !routeLayers[route]) return;
+            
+            if (checkbox.checked) {
+                map.addLayer(routeLayers[route]);
+            } else {
+                map.removeLayer(routeLayers[route]);
+            }
+        }
+
+        // Select all routes
+        function selectAllRoutes() {
+            const checkboxes = document.querySelectorAll('.route-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                const route = checkbox.getAttribute('data-route');
+                if (routeLayers[route]) {
+                    map.addLayer(routeLayers[route]);
+                }
+            });
+        }
+
+        // Deselect all routes
+        function deselectAllRoutes() {
+            const checkboxes = document.querySelectorAll('.route-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const route = checkbox.getAttribute('data-route');
+                if (routeLayers[route]) {
+                    map.removeLayer(routeLayers[route]);
+                }
+            });
+        }
+
+        // Initialize map on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            initializeMap();
+        });
+    </script>
+</body>
+</html>
