@@ -114,6 +114,58 @@
             .text-2xl {
                 font-size: 1.5rem !important;
             }
+            .text-xl {
+                font-size: 1.125rem !important;
+            }
+        }
+        /* Small mobile screens */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5rem !important;
+            }
+            h2 {
+                font-size: 1.25rem !important;
+            }
+            h3 {
+                font-size: 1.125rem !important;
+            }
+            .text-4xl {
+                font-size: 1.75rem !important;
+            }
+            .text-3xl {
+                font-size: 1.5rem !important;
+            }
+            .text-2xl {
+                font-size: 1.25rem !important;
+            }
+            .text-xl {
+                font-size: 1rem !important;
+            }
+        }
+        /* Responsive stat boxes */
+        @media (max-width: 640px) {
+            .stat-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        /* Better overflow handling */
+        .overflow-x-auto {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 #f7fafc;
+        }
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 8px;
+        }
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background: #f7fafc;
+            border-radius: 4px;
+        }
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 4px;
+        }
+        .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
         }
     </style>
 </head>
@@ -121,23 +173,42 @@
     <!-- Header -->
     <div class="gradient-bg text-white py-6 md:py-8 px-4 shadow-lg">
         <div class="container mx-auto max-w-7xl">
-            <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2">
-                <i class="fas fa-bus mr-2 md:mr-3"></i>
-                <span class="inline md:inline">โปรแกรมวิเคราะห์ GPS</span>
-                <span class="inline md:inline">รถรางมหาวิทยาลัยเชียงใหม่</span>
-            </h1>
-            <p class="text-center text-purple-100 text-sm md:text-base">วันที่ 11 กันยายน 2568</p>
+            <div class="flex items-center justify-between">
+                <!-- Mobile Menu Button -->
+                <button id="menuToggle" class="lg:hidden text-white focus:outline-none hover:bg-white/20 p-2 rounded-lg transition-colors">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                
+                <div class="flex-1">
+                    <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2">
+                        <i class="fas fa-bus mr-2 md:mr-3"></i>
+                        <span class="inline md:inline">โปรแกรมวิเคราะห์ GPS</span>
+                        <span class="inline md:inline">รถรางมหาวิทยาลัยเชียงใหม่</span>
+                    </h1>
+                    <p class="text-center text-purple-100 text-sm md:text-base">วันที่ 11 กันยายน 2568</p>
+                </div>
+                
+                <!-- Spacer for alignment -->
+                <div class="lg:hidden w-10"></div>
+            </div>
         </div>
     </div>
 
+    <!-- Mobile Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
     <!-- Sidebar Navigation -->
-    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-gray-900 to-gray-800 text-white z-40 overflow-y-auto shadow-2xl">
+    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-gray-900 to-gray-800 text-white z-40 overflow-y-auto shadow-2xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
         <div class="p-6">
-            <div class="flex items-center mb-8">
+            <div class="flex items-center justify-between mb-8">
                 <h2 class="text-xl font-bold">
                     <i class="fas fa-compass mr-2 text-purple-400"></i>
                     เมนูนำทาง
                 </h2>
+                <!-- Close button for mobile -->
+                <button id="closeSidebar" class="lg:hidden text-white hover:bg-white/20 p-2 rounded-lg transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
             
             <nav class="space-y-2">
@@ -178,28 +249,28 @@
         </div>
 
         <!-- Results Section -->
-    <div class="ml-64 container mx-auto max-w-7xl px-4 py-8">
+    <div class="lg:ml-64 container mx-auto max-w-7xl px-4 py-8">
         <div id="results">
             <!-- Section 0: Data Preparation -->
-            <div id="section-0" class="bg-gradient-to-br from-purple-50 via-white to-blue-50 rounded-lg shadow-lg p-8 mb-8">
-                <div class="text-center mb-8">
-                    <div class="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-full mb-4">
+            <div id="section-0" class="bg-gradient-to-br from-purple-50 via-white to-blue-50 rounded-lg shadow-lg p-4 md:p-8 mb-6 md:mb-8">
+                <div class="text-center mb-6 md:mb-8">
+                    <div class="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-full mb-3 md:mb-4">
                         <i class="fas fa-cogs mr-2"></i>
-                        <span class="text-xl font-bold">ขั้นตอนที่ 0</span>
+                        <span class="text-base md:text-xl font-bold">ขั้นตอนที่ 0</span>
                     </div>
-                    <h2 class="text-4xl font-bold text-gray-800 mb-3">
+                    <h2 class="text-2xl md:text-4xl font-bold text-gray-800 mb-2 md:mb-3 px-4">
                         การเตรียมข้อมูล
             </h2>
-                    <p class="text-xl text-gray-600">Data Preparation & Cleaning</p>
-                    <div class="w-32 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 mx-auto mt-4"></div>
+                    <p class="text-base md:text-xl text-gray-600 px-4">Data Preparation & Cleaning</p>
+                    <div class="w-24 md:w-32 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 mx-auto mt-3 md:mt-4"></div>
             </div>
                 
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-indigo-500 p-6 rounded-lg mb-8">
-                    <h3 class="text-xl font-bold text-indigo-800 mb-3">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-indigo-500 p-4 md:p-6 rounded-lg mb-6 md:mb-8">
+                    <h3 class="text-lg md:text-xl font-bold text-indigo-800 mb-2 md:mb-3">
                         <i class="fas fa-info-circle mr-2"></i>
                         เกี่ยวกับขั้นตอนนี้
                     </h3>
-                    <p class="text-gray-700 leading-relaxed">
+                    <p class="text-sm md:text-base text-gray-700 leading-relaxed">
                         ก่อนที่จะวิเคราะห์ข้อมูล GPS ของรถราง เราต้องทำความสะอาดข้อมูลก่อน เพราะข้อมูลดิบมักมีปัญหา เช่น ข้อมูลหาย หรือข้อมูลผิดพลาด 
                         ขั้นตอนนี้จะช่วยให้ข้อมูลพร้อมสำหรับการวิเคราะห์ต่อไป
                     </p>
@@ -207,32 +278,36 @@
 
                 <!-- Progress Flow -->
                 <div class="mb-8">
-                    <div class="flex items-center justify-center gap-3 flex-wrap">
+                    <div class="flex items-center justify-center gap-2 md:gap-3 flex-wrap">
                         <div class="flex items-center">
-                            <div class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                            <div class="bg-blue-500 text-white px-3 md:px-4 py-2 rounded-lg font-semibold text-xs md:text-sm">
                                 857,056 แถว
                             </div>
-                            <i class="fas fa-arrow-right text-gray-400 mx-2"></i>
+                            <i class="fas fa-arrow-right text-gray-400 mx-1 md:mx-2 hidden sm:inline"></i>
+                            <i class="fas fa-arrow-down text-gray-400 mx-1 sm:hidden"></i>
                         </div>
                         <div class="flex items-center">
-                            <div class="bg-yellow-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                            <div class="bg-yellow-500 text-white px-3 md:px-4 py-2 rounded-lg font-semibold text-xs md:text-sm">
                                 ลบข้อมูลหาย
                             </div>
-                            <i class="fas fa-arrow-right text-gray-400 mx-2"></i>
+                            <i class="fas fa-arrow-right text-gray-400 mx-1 md:mx-2 hidden sm:inline"></i>
+                            <i class="fas fa-arrow-down text-gray-400 mx-1 sm:hidden"></i>
                         </div>
                         <div class="flex items-center">
-                            <div class="bg-orange-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                            <div class="bg-orange-500 text-white px-3 md:px-4 py-2 rounded-lg font-semibold text-xs md:text-sm">
                                 529,454 แถว
                             </div>
-                            <i class="fas fa-arrow-right text-gray-400 mx-2"></i>
+                            <i class="fas fa-arrow-right text-gray-400 mx-1 md:mx-2 hidden sm:inline"></i>
+                            <i class="fas fa-arrow-down text-gray-400 mx-1 sm:hidden"></i>
                         </div>
                         <div class="flex items-center">
-                            <div class="bg-purple-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
+                            <div class="bg-purple-500 text-white px-3 md:px-4 py-2 rounded-lg font-semibold text-xs md:text-sm">
                                 กรองสาย 0, 99
                             </div>
-                            <i class="fas fa-arrow-right text-gray-400 mx-2"></i>
+                            <i class="fas fa-arrow-right text-gray-400 mx-1 md:mx-2 hidden sm:inline"></i>
+                            <i class="fas fa-arrow-down text-gray-400 mx-1 sm:hidden"></i>
                         </div>
-                        <div class="bg-green-500 text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-lg">
+                        <div class="bg-green-500 text-white px-3 md:px-4 py-2 rounded-lg font-semibold text-xs md:text-sm shadow-lg">
                             <i class="fas fa-check-circle mr-2"></i>
                             464,749 แถว
                         </div>
@@ -241,34 +316,35 @@
 
                 <!-- Step 1 -->
                 <div class="border border-indigo-200 rounded-xl mb-6 overflow-hidden">
-                    <div class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-4 md:px-6 py-3 md:py-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center">
-                                <div class="bg-white text-indigo-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                <div class="bg-white text-indigo-600 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-base md:text-lg mr-3 md:mr-4 flex-shrink-0">
                                     1
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-bold">นำเข้าข้อมูล</h3>
-                                    <p class="text-indigo-100 text-sm">โหลดไฟล์ CSV และดูตัวอย่างข้อมูล</p>
+                                    <h3 class="text-lg md:text-2xl font-bold">นำเข้าข้อมูล</h3>
+                                    <p class="text-indigo-100 text-xs md:text-sm">โหลดไฟล์ CSV และดูตัวอย่างข้อมูล</p>
                                 </div>
                             </div>
-                            <i class="fas fa-database text-3xl opacity-50"></i>
+                            <i class="fas fa-database text-2xl md:text-3xl opacity-50 hidden sm:block"></i>
                         </div>
                     </div>
-                    <div class="p-6 bg-white">
+                    <div class="p-4 md:p-6 bg-white">
                         <div class="mb-4">
-                            <p class="text-gray-700 leading-relaxed">
+                            <p class="text-sm md:text-base text-gray-700 leading-relaxed">
                                 <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
                                 <strong>ทำไมต้องทำ:</strong> เริ่มต้นด้วยการโหลดข้อมูลจากไฟล์ CSV เพื่อดูว่าข้อมูลมีหน้าตาเป็นอย่างไร มีคอลัมน์อะไรบ้าง
                             </p>
                         </div>
-                        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm border-2 border-gray-700"><code>import pandas as pd
+                        <pre class="bg-gray-900 text-green-400 p-3 md:p-4 rounded-lg overflow-x-auto text-xs md:text-sm border-2 border-gray-700"><code>import pandas as pd
 import numpy as np
 df = pd.read_csv('/content/drive/MyDrive/mymaterial_cmu_new_data_20250911.csv')
 df.head()</code></pre>
                     
-                    <div class="mt-4 table-responsive">
-                        <table class="min-w-full bg-white border border-gray-200 text-sm">
+                    <div class="mt-4 overflow-x-auto -mx-4 md:mx-0">
+                        <div class="inline-block min-w-full align-middle">
+                        <table class="min-w-full bg-white border border-gray-200 text-xs md:text-sm">
                             <thead class="bg-gray-100">
                                 <tr>
                                     <th class="px-3 py-2 border text-center">#</th>
@@ -388,8 +464,8 @@ df.head()</code></pre>
                                 </tr>
                             </tbody>
                         </table>
+                        </div>
                     </div>
-                </div>
 
                         <div class="bg-blue-50 p-4 rounded-lg mt-4">
                             <p class="text-sm text-gray-600">
@@ -402,18 +478,18 @@ df.head()</code></pre>
 
                 <!-- Step 2 -->
                 <div class="border border-blue-200 rounded-xl mb-6 overflow-hidden">
-                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                    <div class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 md:px-6 py-3 md:py-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center">
-                                <div class="bg-white text-blue-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                <div class="bg-white text-blue-600 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-base md:text-lg mr-3 md:mr-4 flex-shrink-0">
                                     2
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-bold">ตรวจสอบข้อมูลเบื้องต้น</h3>
-                                    <p class="text-blue-100 text-sm">ดูว่ามีข้อมูลกี่แถว แต่ละคอลัมน์เป็นประเภทอะไร</p>
+                                    <h3 class="text-lg md:text-2xl font-bold">ตรวจสอบข้อมูลเบื้องต้น</h3>
+                                    <p class="text-blue-100 text-xs md:text-sm">ดูว่ามีข้อมูลกี่แถว แต่ละคอลัมน์เป็นประเภทอะไร</p>
                                 </div>
                             </div>
-                            <i class="fas fa-search text-3xl opacity-50"></i>
+                            <i class="fas fa-search text-2xl md:text-3xl opacity-50 hidden sm:block"></i>
                         </div>
                     </div>
                     <div class="p-6 bg-white">
@@ -460,18 +536,18 @@ memory usage: 111.2+ MB</code></pre>
 
                 <!-- Step 3 -->
                 <div class="border border-yellow-200 rounded-xl mb-6 overflow-hidden">
-                    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                    <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 md:px-6 py-3 md:py-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center">
-                                <div class="bg-white text-yellow-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                <div class="bg-white text-yellow-600 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-base md:text-lg mr-3 md:mr-4 flex-shrink-0">
                                     3
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-bold">ระบุปัญหาข้อมูลหาย</h3>
-                                    <p class="text-yellow-100 text-sm">ทำความเข้าใจว่าข้อมูลหายจะส่งผลต่อการวิเคราะห์อย่างไร</p>
+                                    <h3 class="text-lg md:text-2xl font-bold">ระบุปัญหาข้อมูลหาย</h3>
+                                    <p class="text-yellow-100 text-xs md:text-sm">ทำความเข้าใจว่าข้อมูลหายจะส่งผลต่อการวิเคราะห์อย่างไร</p>
                                 </div>
                             </div>
-                            <i class="fas fa-exclamation-triangle text-3xl opacity-50"></i>
+                            <i class="fas fa-exclamation-triangle text-2xl md:text-3xl opacity-50 hidden sm:block"></i>
                         </div>
                     </div>
                     <div class="p-6 bg-white">
@@ -492,18 +568,18 @@ memory usage: 111.2+ MB</code></pre>
 
                 <!-- Step 4 -->
                 <div class="border border-red-200 rounded-xl mb-6 overflow-hidden">
-                    <div class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                    <div class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 md:px-6 py-3 md:py-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center">
-                                <div class="bg-white text-red-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                <div class="bg-white text-red-600 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-base md:text-lg mr-3 md:mr-4 flex-shrink-0">
                                     4
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-bold">ลบข้อมูลที่หาย</h3>
-                                    <p class="text-red-100 text-sm">กำจัดแถวที่มีข้อมูลหาย เหลือเฉพาะข้อมูลที่สมบูรณ์</p>
+                                    <h3 class="text-lg md:text-2xl font-bold">ลบข้อมูลที่หาย</h3>
+                                    <p class="text-red-100 text-xs md:text-sm">กำจัดแถวที่มีข้อมูลหาย เหลือเฉพาะข้อมูลที่สมบูรณ์</p>
                                 </div>
                             </div>
-                            <i class="fas fa-trash-alt text-3xl opacity-50"></i>
+                            <i class="fas fa-trash-alt text-2xl md:text-3xl opacity-50 hidden sm:block"></i>
                         </div>
                     </div>
                     <div class="p-6 bg-white">
@@ -554,18 +630,18 @@ memory usage: 72.7+ MB</code></pre>
 
                 <!-- Step 5 -->
                 <div class="border border-teal-200 rounded-xl mb-6 overflow-hidden">
-                    <div class="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                    <div class="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 md:px-6 py-3 md:py-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center">
-                                <div class="bg-white text-teal-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                <div class="bg-white text-teal-600 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-base md:text-lg mr-3 md:mr-4 flex-shrink-0">
                                     5
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-bold">แปลงรูปแบบเวลา</h3>
-                                    <p class="text-teal-100 text-sm">เปลี่ยนเวลาจากตัวเลขยาวๆ ให้อ่านง่าย (HH:MM:SS)</p>
+                                    <h3 class="text-lg md:text-2xl font-bold">แปลงรูปแบบเวลา</h3>
+                                    <p class="text-teal-100 text-xs md:text-sm">เปลี่ยนเวลาจากตัวเลขยาวๆ ให้อ่านง่าย (HH:MM:SS)</p>
                                 </div>
                             </div>
-                            <i class="fas fa-clock text-3xl opacity-50"></i>
+                            <i class="fas fa-clock text-2xl md:text-3xl opacity-50 hidden sm:block"></i>
                         </div>
                     </div>
                     <div class="p-6 bg-white">
@@ -646,18 +722,18 @@ df</code></pre>
 
                 <!-- Step 6 -->
                 <div class="border border-purple-200 rounded-xl mb-6 overflow-hidden">
-                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 md:px-6 py-3 md:py-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center">
-                                <div class="bg-white text-purple-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                <div class="bg-white text-purple-600 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-base md:text-lg mr-3 md:mr-4 flex-shrink-0">
                                     6
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-bold">ตรวจสอบสายรถ</h3>
-                                    <p class="text-purple-100 text-sm">ดูว่ามีสายรถอะไรบ้างในข้อมูล</p>
+                                    <h3 class="text-lg md:text-2xl font-bold">ตรวจสอบสายรถ</h3>
+                                    <p class="text-purple-100 text-xs md:text-sm">ดูว่ามีสายรถอะไรบ้างในข้อมูล</p>
                                 </div>
                             </div>
-                            <i class="fas fa-route text-3xl opacity-50"></i>
+                            <i class="fas fa-route text-2xl md:text-3xl opacity-50 hidden sm:block"></i>
                         </div>
                     </div>
                     <div class="p-6 bg-white">
@@ -681,18 +757,18 @@ array([2, 5, 3, 99, 8, 1, 9, 4, 0, 7, 6])</code></pre>
 
                 <!-- Step 7 -->
                 <div class="border border-green-200 rounded-xl mb-6 overflow-hidden">
-                    <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 md:px-6 py-3 md:py-4">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
                             <div class="flex items-center">
-                                <div class="bg-white text-green-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
+                                <div class="bg-white text-green-600 w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-base md:text-lg mr-3 md:mr-4 flex-shrink-0">
                                     7
                                 </div>
                                 <div>
-                                    <h3 class="text-2xl font-bold">กรองสายรถที่ไม่ต้องการ</h3>
-                                    <p class="text-green-100 text-sm">ตัดสาย 0 และ 99 ออก เหลือเฉพาะสายที่ใช้งานจริง</p>
+                                    <h3 class="text-lg md:text-2xl font-bold">กรองสายรถที่ไม่ต้องการ</h3>
+                                    <p class="text-green-100 text-xs md:text-sm">ตัดสาย 0 และ 99 ออก เหลือเฉพาะสายที่ใช้งานจริง</p>
                                 </div>
                             </div>
-                            <i class="fas fa-filter text-3xl opacity-50"></i>
+                            <i class="fas fa-filter text-2xl md:text-3xl opacity-50 hidden sm:block"></i>
                         </div>
                     </div>
                     <div class="p-6 bg-white">
@@ -806,23 +882,23 @@ memory usage: 60.3+ MB</code></pre>
             </div>
 
             <!-- Section 1: Basic Info -->
-            <div id="section-1" class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-lg p-6 mb-6 card-hover">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-blue-500 pb-2">
+            <div id="section-1" class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover">
+                <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-gray-800 border-b-2 border-blue-500 pb-2">
                     <i class="fas fa-info-circle mr-2 text-blue-600"></i>
                     [1] ข้อมูลเบื้องต้น
                 </h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div class="bg-blue-50 p-4 rounded-lg">
-                        <div class="text-3xl font-bold text-blue-600" id="totalRows">464,749</div>
-                        <div class="text-gray-600">แถวข้อมูลทั้งหมด หลังจากทำการลบค่าที่ว่างและกรองสายรถที่มี สาย 0 และ 99 ออก</div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 mb-4">
+                    <div class="bg-blue-50 p-3 md:p-4 rounded-lg">
+                        <div class="text-2xl md:text-3xl font-bold text-blue-600" id="totalRows">464,749</div>
+                        <div class="text-sm md:text-base text-gray-600">แถวข้อมูลทั้งหมด หลังจากทำการลบค่าที่ว่างและกรองสายรถที่มี สาย 0 และ 99 ออก</div>
                     </div>
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <div class="text-3xl font-bold text-green-600" id="totalBuses">20</div>
-                        <div class="text-gray-600">จำนวนรถทั้งหมด</div>
+                    <div class="bg-green-50 p-3 md:p-4 rounded-lg">
+                        <div class="text-2xl md:text-3xl font-bold text-green-600" id="totalBuses">20</div>
+                        <div class="text-sm md:text-base text-gray-600">จำนวนรถทั้งหมด</div>
                     </div>
-                    <div class="bg-purple-50 p-4 rounded-lg">
-                        <div class="text-3xl font-bold text-purple-600" id="totalRoutes">9</div>
-                        <div class="text-gray-600">จำนวนสายทั้งหมด</div>
+                    <div class="bg-purple-50 p-3 md:p-4 rounded-lg">
+                        <div class="text-2xl md:text-3xl font-bold text-purple-600" id="totalRoutes">9</div>
+                        <div class="text-sm md:text-base text-gray-600">จำนวนสายทั้งหมด</div>
                     </div>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-lg">
@@ -833,8 +909,8 @@ memory usage: 60.3+ MB</code></pre>
             </div>
 
             <!-- Section 2: GPS Problems -->
-            <div id="section-2" class="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 rounded-lg shadow-lg p-6 mb-6 card-hover">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-red-500 pb-2">
+            <div id="section-2" class="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover">
+                <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-gray-800 border-b-2 border-red-500 pb-2">
                     <i class="fas fa-exclamation-triangle mr-2 text-red-600"></i>
                     [2] วิเคราะห์ปัญหา GPS เพี้ยน
                 </h2>
@@ -1367,8 +1443,8 @@ memory usage: 60.3+ MB</code></pre>
             </div>
 
             <!-- Section 3: Route Analysis -->
-            <div id="section-3" class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg shadow-lg p-6 mb-6 card-hover">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-green-500 pb-2">
+            <div id="section-3" class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover">
+                <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-gray-800 border-b-2 border-green-500 pb-2">
                     <i class="fas fa-route mr-2 text-green-600"></i>
                     [3] วิเคราะห์ปัญหาตามสาย
                 </h2>
@@ -1407,8 +1483,8 @@ memory usage: 60.3+ MB</code></pre>
             </div>
 
             <!-- Section 4: Bus Analysis -->
-            <div id="section-4" class="bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 rounded-lg shadow-lg p-6 mb-6 card-hover">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-yellow-500 pb-2">
+            <div id="section-4" class="bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover">
+                <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-gray-800 border-b-2 border-yellow-500 pb-2">
                     <i class="fas fa-bus-alt mr-2 text-yellow-600"></i>
                     [4] วิเคราะห์ปัญหาตามรถ (Top 10)
                 </h2>
@@ -1507,8 +1583,8 @@ memory usage: 60.3+ MB</code></pre>
             </div>
 
             <!-- Section 5: GPS Loss Locations -->
-            <div id="section-5" class="bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 rounded-lg shadow-lg p-6 mb-6 card-hover">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-pink-500 pb-2">
+            <div id="section-5" class="bg-gradient-to-br from-pink-50 via-rose-50 to-red-50 rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover">
+                <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-gray-800 border-b-2 border-pink-500 pb-2">
                     <i class="fas fa-map-marker-alt mr-2 text-pink-600"></i>
                     [5] Insight 4: Location Hotspots (DBSCAN Clustering)
                 </h2>
@@ -1873,8 +1949,8 @@ memory usage: 60.3+ MB</code></pre>
             </div>
 
             <!-- Section 5.5: GPS Problem Map by Route -->
-            <div id="section-5-5" class="bg-white rounded-lg shadow-lg p-6 mb-6 card-hover">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-teal-500 pb-2">
+            <div id="section-5-5" class="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover">
+                <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-gray-800 border-b-2 border-teal-500 pb-2">
                     <i class="fas fa-map mr-2 text-teal-600"></i>
                     [5.1] แผนที่แสดงจุดเพี้ยน GPS แยกตามสาย
                 </h2>
@@ -1930,8 +2006,8 @@ memory usage: 60.3+ MB</code></pre>
             </div>
 
             <!-- Section 6: Speed Analysis -->
-            <div id="section-6" class="bg-gradient-to-br from-indigo-50 via-purple-50 to-violet-50 rounded-lg shadow-lg p-6 mb-6 card-hover">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-indigo-500 pb-2">
+            <div id="section-6" class="bg-gradient-to-br from-indigo-50 via-purple-50 to-violet-50 rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover">
+                <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 text-gray-800 border-b-2 border-indigo-500 pb-2">
                     <i class="fas fa-tachometer-alt mr-2 text-indigo-600"></i>
                     [6] Insight 5: Speed Anomaly Detection
                 </h2>
@@ -2931,6 +3007,59 @@ memory usage: 60.3+ MB</code></pre>
         // Initialize map on page load
         window.addEventListener('DOMContentLoaded', () => {
                 initializeMap();
+        });
+
+        // Mobile menu toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const closeSidebar = document.getElementById('closeSidebar');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+
+            // Open sidebar
+            if (menuToggle) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                });
+            }
+
+            // Close sidebar
+            function closeSidebarFunc() {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            if (closeSidebar) {
+                closeSidebar.addEventListener('click', closeSidebarFunc);
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebarFunc);
+            }
+
+            // Close sidebar when clicking on navigation links on mobile
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Only close on mobile
+                    if (window.innerWidth < 1024) {
+                        closeSidebarFunc();
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 1024) {
+                    // Reset on desktop
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
+            });
         });
 
     </script>
