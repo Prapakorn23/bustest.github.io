@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>โปรแกรมวิเคราะห์ GPS รถรางมหาวิทยาลัยเชียงใหม่</title>
+    <title>การวิเคราะห์ รถไฟฟ้า ขส.มช.ของมหาวิทยาลัยเชียงใหม่</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -92,8 +92,8 @@
         <div class="container mx-auto max-w-7xl">
             <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2">
                 <i class="fas fa-bus mr-2 md:mr-3"></i>
-                <span class="inline md:inline">การวิเคราะห์ GPS</span>
-                <span class="inline md:inline">รถรางมหาวิทยาลัยเชียงใหม่</span>
+                <span class="inline md:inline">การวิเคราะห์ รถไฟฟ้า ขส.มช.</span>
+                <span class="inline md:inline">ของมหาวิทยาลัยเชียงใหม่</span>
             </h1>
             <p class="text-center text-purple-100 text-sm md:text-base">ข้อมูล ณ วันที่ 11 กันยายน 2568</p>
         </div>
@@ -975,7 +975,7 @@ dtype: object</code></pre>
                         <div class="text-3xl font-bold text-red-600">17,341 แถว (3.73%) จากข้อมูลทั้งหมด 464,749 แถว</div>
                         <p class="text-sm text-gray-600 mt-1">
                             <i class="fas fa-info-circle mr-1"></i>
-                            GPS ไม่ได้รับสัญญาณเลย อาจเกิดจากอุปกรณ์เสีย หรือ antenna ขาด
+                            GPS ไม่ได้รับสัญญาณเลย
                         </p>
                     </div>
                     <div class="table-responsive">
@@ -1148,13 +1148,58 @@ dtype: object</code></pre>
                     </div>
                     
                     <!-- ผลลัพธ์ -->
-                    <div class="bg-orange-50 p-4 rounded-lg">
-                        <div class="text-2xl font-bold text-orange-600">322 แถว (0.07%) จากข้อมูลทั้งหมด 464,749 แถว</div>
+                    <div class="bg-orange-50 p-4 rounded-lg mb-4">
+                        <div class="text-3xl font-bold text-orange-600">322 แถว (0.07%) จากข้อมูลทั้งหมด 464,749 แถว</div>
                         <p class="text-sm text-gray-600 mt-1">
                             <i class="fas fa-info-circle mr-1"></i>
-                            GPS แสดงตำแหน่งนอกเขต CMU อาจเกิดจากสัญญาณสะท้อนจากอาคาร
+                            GPS บอกตำแหน่งที่อยู่นอกเขตมหาวิทยาลัยเชียงใหม่
                         </p>
-                        <p class="text-gray-600 mt-2">รถหมายเลข 28: 322 ครั้ง</p>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="min-w-full bg-white border border-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-2 border text-left">รถหมายเลข</th>
+                                    <th class="px-4 py-2 border text-right">จำนวนครั้ง</th>
+                                    <th class="px-4 py-2 border text-right">สัดส่วน (%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">28</td><td class="px-4 py-2 border text-right text-orange-600 font-semibold">322</td><td class="px-4 py-2 border text-right text-orange-600 font-semibold">100.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">2</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">4</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">7</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">9</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">10</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">13</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">18</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">19</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">20</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">22</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">26</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">27</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">29</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">30</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">31</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">35</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">36</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">37</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                                <tr class="hover:bg-gray-50"><td class="px-4 py-2 border font-semibold">39</td><td class="px-4 py-2 border text-right">0</td><td class="px-4 py-2 border text-right text-green-600">0.00%</td></tr>
+                            </tbody>
+                            <tfoot class="bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold">
+                                <tr>
+                                    <td class="px-4 py-3 border text-left text-lg">
+                                        <i class="fas fa-calculator mr-2"></i>รวม (20 คัน)
+                                    </td>
+                                    <td class="px-4 py-3 border text-right text-lg">
+                                        <span class="text-yellow-200">322</span>
+                                    </td>
+                                    <td class="px-4 py-3 border text-right text-xl">
+                                        <span class="text-yellow-300 font-extrabold">100.00%</span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
 
@@ -1179,32 +1224,29 @@ dtype: object</code></pre>
                             <div class="flex items-start gap-3 mb-3">
                                 <div class="bg-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-lg">1</div>
                                 <div class="flex-1">
-                                    <strong class="text-gray-800 text-lg">คำนวณระยะทาง (Distance)</strong>
-                                    <p class="text-sm text-gray-600 mt-1">วัดระยะทางระหว่าง 2 จุด GPS ด้วย Geodesic Distance</p>
+                                    <strong class="text-gray-800 text-lg">วัดระยะทางระหว่าง 2 จุด GPS ติดกัน</strong>
+                                    <p class="text-sm text-gray-600 mt-1">ดูว่ารถเคลื่อนที่เป็นระยะทางเท่าไหร่</p>
                                 </div>
                             </div>
                             
                             <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                                    <div class="bg-white p-3 rounded-lg shadow">
-                                        <div class="text-xs text-gray-500 mb-1">จุดที่ 1 (เวลา 10:00:00)</div>
-                                        <div class="font-bold text-blue-600">LAT: 18.7980, LNG: 98.9520</div>
+                                    <div class="bg-white p-3 rounded-lg shadow text-center">
+                                        <div class="text-xs text-gray-500 mb-1">จุดที่ 1</div>
+                                        <div class="font-bold text-blue-600">10:00:00</div>
                                     </div>
-                                    <div class="bg-white p-3 rounded-lg shadow">
-                                        <div class="text-xs text-gray-500 mb-1">จุดที่ 2 (เวลา 10:00:01)</div>
-                                        <div class="font-bold text-green-600">LAT: 18.7990, LNG: 98.9530</div>
+                                    <div class="bg-white p-3 rounded-lg shadow text-center">
+                                        <div class="text-xs text-gray-500 mb-1">จุดที่ 2</div>
+                                        <div class="font-bold text-green-600">10:00:01</div>
                                     </div>
                                 </div>
                                 
                                 <div class="bg-white p-3 rounded text-center">
-                                    <div class="text-sm text-gray-600 mb-2">สูตร:</div>
-                                    <code class="text-sm font-bold">distance = geodesic((lat1, lng1), (lat2, lng2)).meters</code>
-                                    <div class="mt-2 text-lg">
-                                        <i class="fas fa-arrow-down text-purple-500"></i>
+                                    <div class="text-sm font-bold text-purple-600 mb-2">คำนวณได้:</div>
+                                    <div class="text-3xl font-bold text-purple-600 bg-purple-100 px-4 py-2 rounded-lg inline-block">
+                                        150 เมตร
                                     </div>
-                                    <div class="text-2xl font-bold text-purple-600 bg-purple-100 px-4 py-2 rounded-lg inline-block mt-2">
-                                        ระยะทาง = 150 เมตร
-                                    </div>
+                                    <div class="text-xs text-gray-600 mt-2">(ระยะทางระหว่าง 2 จุดในเวลา 1 วินาที)</div>
                                 </div>
                             </div>
                         </div>
@@ -1214,46 +1256,37 @@ dtype: object</code></pre>
                             <div class="flex items-start gap-3 mb-3">
                                 <div class="bg-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-lg">2</div>
                                 <div class="flex-1">
-                                    <strong class="text-gray-800 text-lg">คำนวณความเร็ว (Speed)</strong>
-                                    <p class="text-sm text-gray-600 mt-1">หาว่ารถเคลื่อนที่เร็วแค่ไหน</p>
+                                    <strong class="text-gray-800 text-lg">คำนวณความเร็ว</strong>
+                                    <p class="text-sm text-gray-600 mt-1">ดูว่ารถวิ่งเร็วกี่ km/h</p>
                                 </div>
                             </div>
                             
                             <div class="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-lg p-4">
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                                     <div class="bg-white p-3 rounded-lg text-center shadow">
-                                        <div class="text-xs text-gray-500">ระยะทาง</div>
-                                        <div class="text-xl font-bold text-purple-600">150 ม.</div>
+                                        <div class="text-xs text-gray-500 mb-1">เคลื่อนที่</div>
+                                        <div class="text-2xl font-bold text-purple-600">150 ม.</div>
                                     </div>
                                     <div class="bg-white p-3 rounded-lg text-center shadow">
-                                        <div class="text-xs text-gray-500">ช่วงเวลา</div>
-                                        <div class="text-xl font-bold text-blue-600">1 วินาที</div>
+                                        <div class="text-xs text-gray-500 mb-1">ใช้เวลา</div>
+                                        <div class="text-2xl font-bold text-blue-600">1 วินาที</div>
                                     </div>
-                                    <div class="bg-white p-3 rounded-lg text-center shadow">
-                                        <div class="text-xs text-gray-500">ความเร็ว</div>
-                                        <div class="text-xl font-bold text-red-600">540 km/h</div>
+                                    <div class="bg-white p-3 rounded-lg text-center shadow border-2 border-red-400">
+                                        <div class="text-xs text-gray-500 mb-1">ความเร็ว</div>
+                                        <div class="text-3xl font-bold text-red-600">540</div>
+                                        <div class="text-xs text-red-600 font-bold">km/h</div>
                                     </div>
                                 </div>
                                 
-                                <div class="bg-white p-4 rounded space-y-2">
-                                    <div class="text-center mb-3">
-                                        <span class="inline-block bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">สูตรหาว่า:</span>
+                                <div class="bg-white p-4 rounded">
+                                    <div class="text-center font-bold text-lg mb-3">
+                                        <span class="text-purple-600">150</span> เมตร ใน <span class="text-blue-600">1</span> วินาที
+                                        <span class="text-gray-600 mx-2">→</span>
+                                        <span class="text-red-600 text-xl">540 km/h</span>
                                     </div>
-                                    <div class="text-center text-base mb-2">
-                                        <span class="font-semibold text-gray-700">ความเร็ว = </span>
-                                        <span class="text-blue-600 font-bold">ระยะทาง (เมตร)</span>
-                                        <span class="text-gray-700 font-bold"> / </span>
-                                        <span class="text-orange-600 font-bold">เวลา (วินาที)</span>
-                                    </div>
-                                    <div class="text-center font-mono text-sm mt-3">
-                                        = <span class="text-purple-600 font-bold">150</span> / <span class="text-blue-600 font-bold">1</span> = <strong>150 m/s</strong>
-                                    </div>
-                                    <div class="text-center font-mono text-sm">
-                                        ความเร็ว (km/h) = 150 × 3.6 = <strong class="text-red-600 text-xl">540 km/h</strong>
-                                    </div>
-                                    <div class="text-center text-xs text-gray-600 mt-2 bg-yellow-100 p-2 rounded">
-                                        <i class="fas fa-exclamation-triangle text-yellow-600"></i>
-                                        รถรางปกติวิ่งเร็ว ~30-40 km/h เท่านั้น!
+                                    <div class="text-center text-sm text-gray-600 bg-yellow-100 p-3 rounded-lg border-2 border-yellow-400">
+                                        <i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>
+                                        <strong>รถรางปกติวิ่งแค่ 30-40 km/h เท่านั้น!</strong>
                                     </div>
                                 </div>
                             </div>
@@ -1264,49 +1297,44 @@ dtype: object</code></pre>
                             <div class="flex items-start gap-3 mb-3">
                                 <div class="bg-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-lg">3</div>
                                 <div class="flex-1">
-                                    <strong class="text-gray-800 text-lg">ตรวจจับ Teleporting</strong>
-                                    <p class="text-sm text-gray-600 mt-1">ถ้าเคลื่อนที่เร็วผิดปกติ = GPS กระโดด!</p>
+                                    <strong class="text-gray-800 text-lg">สรุปว่า GPS กระโดดหรือไม่</strong>
+                                    <p class="text-sm text-gray-600 mt-1">ถ้าเร็วเกินไป = GPS กระโดดตำแหน่ง!</p>
                                 </div>
                             </div>
                             
                             <div class="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-300 rounded-lg p-4">
-                                <div class="text-center mb-3">
-                                    <div class="text-sm text-gray-700 font-bold mb-2">เงื่อนไขการตรวจจับ:</div>
-                                    <div class="bg-white p-3 rounded inline-block">
-                                        <code class="text-sm">
-                                            (ระยะทาง > 500m และ เวลา ≤ 1s)<br>
-                                            หรือ<br>
-                                            (ความเร็ว > 300 km/h)
-                                        </code>
+                                <div class="text-center mb-4">
+                                    <div class="text-lg text-gray-800 font-bold mb-2">📋 เงื่อนไข:</div>
+                                    <div class="bg-white p-4 rounded-lg border-2 border-gray-300 inline-block">
+                                        <div class="text-base font-semibold">
+                                            <span class="text-red-600">เร็วเกิน</span> <span class="text-2xl text-red-600">300 km/h</span>
+                                        </div>
+                                        <div class="text-xs text-gray-600 mt-2">หรือ กระโดดเกิน 500m ใน 1 วินาที</div>
                                     </div>
                                 </div>
                                 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    <div class="bg-green-50 border-2 border-green-400 p-3 rounded-lg">
-                                        <div class="text-center mb-2">
-                                            <div class="bg-green-600 text-white px-3 py-1 rounded-full inline-block text-sm font-bold">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-green-50 border-2 border-green-400 p-4 rounded-lg">
+                                        <div class="text-center mb-3">
+                                            <div class="bg-green-600 text-white px-4 py-2 rounded-full inline-block text-base font-bold">
                                                 ✓ ปกติ
                                             </div>
                                         </div>
-                                        <div class="text-xs space-y-1">
-                                            <div><strong>ระยะ:</strong> 30 เมตร</div>
-                                            <div><strong>เวลา:</strong> 1 วินาที</div>
-                                            <div><strong>ความเร็ว:</strong> 108 km/h</div>
-                                            <div class="text-green-700 font-bold mt-2">→ ยังไม่ถึง 300 km/h</div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-green-600 mb-2">30 km/h</div>
+                                            <div class="text-xs text-gray-600">รถยนต์วิ่งปกติ</div>
                                         </div>
                                     </div>
                                     
-                                    <div class="bg-red-50 border-2 border-red-400 p-3 rounded-lg">
-                                        <div class="text-center mb-2">
-                                            <div class="bg-red-600 text-white px-3 py-1 rounded-full inline-block text-sm font-bold">
-                                                ✗ Teleporting!
+                                    <div class="bg-red-50 border-2 border-red-400 p-4 rounded-lg">
+                                        <div class="text-center mb-3">
+                                            <div class="bg-red-600 text-white px-4 py-2 rounded-full inline-block text-base font-bold">
+                                                ✗ GPS กระโดด!
                                             </div>
                                         </div>
-                                        <div class="text-xs space-y-1">
-                                            <div><strong>ระยะ:</strong> 150 เมตร</div>
-                                            <div><strong>เวลา:</strong> 1 วินาที</div>
-                                            <div><strong>ความเร็ว:</strong> 540 km/h ❌</div>
-                                            <div class="text-red-700 font-bold mt-2">→ เร็วกว่า 300 km/h!</div>
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold text-red-600 mb-2">540 km/h</div>
+                                            <div class="text-xs text-gray-600">เร็วกว่าเครื่องบิน! ❌</div>
                                         </div>
                                     </div>
                                 </div>
@@ -1322,6 +1350,27 @@ dtype: object</code></pre>
                             รถเคลื่อนที่เร็วผิดปกติ (> 500m ใน 1 วินาที) แสดงว่า GPS กระโดดตำแหน่ง
                         </p>
                     </div>
+                    
+                    <!-- คำอธิบายคอลัมน์ -->
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-info-circle text-blue-600 text-xl mt-1"></i>
+                            <div class="flex-1">
+                                <h5 class="font-bold text-blue-900 mb-2">คำอธิบายตาราง:</h5>
+                                <div class="space-y-2 text-sm text-gray-700">
+                                    <div>
+                                        <span class="font-bold text-blue-800">• ระยะไกลสุด (m):</span> 
+                                        ระยะทางที่ GPS กระโดดไกลที่สุด (เช่น 28,343m = 28.3 km)
+                                    </div>
+                                    <div>
+                                        <span class="font-bold text-blue-800">• เฉลี่ย (m):</span> 
+                                        ระยะทางเฉลี่ยของการกระโดดทั้งหมดของรถคันนั้น
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <div class="table-responsive">
                         <table class="min-w-full bg-white border border-gray-200">
                             <thead class="bg-gray-100">
@@ -1459,7 +1508,7 @@ dtype: object</code></pre>
         <div class="container mx-auto max-w-7xl px-4 text-center">
             <p class="text-gray-300">
                 <i class="fas fa-university mr-2"></i>
-                โปรแกรมวิเคราะห์ GPS รถรางมหาวิทยาลัยเชียงใหม่
+                การวิเคราะห์ GPS รถรางมหาวิทยาลัยเชียงใหม่
             </p>
             <p class="text-gray-400 text-sm mt-2">
                 Developed for Prapakorn Kanjina
