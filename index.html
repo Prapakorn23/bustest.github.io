@@ -84,49 +84,153 @@
                 font-size: 1.5rem !important;
             }
         }
+
+        /* Sidebar responsive */
+        @media (max-width: 1023px) {
+            #sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+            }
+            #sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 30;
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+
+        /* Mobile menu button */
+        .menu-toggle {
+            display: none;
+        }
+        @media (max-width: 1023px) {
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 50;
+                background: rgba(255, 255, 255, 0.9);
+                border: none;
+                padding: 0.75rem;
+                border-radius: 0.5rem;
+                cursor: pointer;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            }
+            .menu-toggle:hover {
+                background: white;
+            }
+        }
+
+        /* Responsive progress flow */
+        @media (max-width: 768px) {
+            .progress-flow {
+                flex-direction: column;
+                gap: 0.5rem !important;
+            }
+            .progress-flow > div {
+                width: 100%;
+            }
+            .progress-flow i.fa-arrow-right {
+                transform: rotate(90deg);
+            }
+        }
+
+        /* Responsive cards and sections */
+        @media (max-width: 768px) {
+            .section-card {
+                padding: 1rem !important;
+            }
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* Responsive code blocks */
+        @media (max-width: 768px) {
+            pre {
+                font-size: 0.75rem !important;
+                padding: 0.75rem !important;
+            }
+        }
+
+        /* Better table scrolling on mobile */
+        @media (max-width: 768px) {
+            .table-responsive {
+                -webkit-overflow-scrolling: touch;
+            }
+            .table-responsive table {
+                min-width: 800px;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
+    <!-- Mobile Menu Toggle Button -->
+    <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">
+        <i class="fas fa-bars text-gray-800 text-xl"></i>
+    </button>
+
+    <!-- Sidebar Overlay (Mobile) -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
     <!-- Header -->
-    <div class="gradient-bg text-white py-6 md:py-8 px-4 shadow-lg">
+    <div class="gradient-bg text-white py-6 md:py-8 px-4 md:pl-4 lg:pl-72 shadow-lg pt-20 md:pt-6 lg:pt-8">
         <div class="container mx-auto max-w-7xl">
-            <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2">
+            <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2">
                 <i class="fas fa-bus mr-2 md:mr-3"></i>
                 <span class="inline md:inline">การวิเคราะห์ รถไฟฟ้า ขส.มช. </span>
                 <span class="inline md:inline">ของมหาวิทยาลัยเชียงใหม่</span>
             </h1>
-            <p class="text-center text-purple-100 text-sm md:text-base">ข้อมูล ณ วันที่ 11 กันยายน 2568</p>
+            <p class="text-center text-purple-100 text-xs sm:text-sm md:text-base">ข้อมูล ณ วันที่ 11 กันยายน 2568</p>
         </div>
     </div>
 
     <!-- Sidebar Navigation -->
-    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-gray-900 to-gray-800 text-white z-40 overflow-y-auto shadow-2xl">
+    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-gradient-to-b from-gray-900 to-gray-800 text-white z-40 overflow-y-auto shadow-2xl lg:translate-x-0">
         <div class="p-6">
-            <div class="flex items-center mb-8">
+            <div class="flex items-center justify-between mb-8">
                 <h2 class="text-xl font-bold">
                     <i class="fas fa-compass mr-2 text-purple-400"></i>
                     เมนูนำทาง
                 </h2>
+                <button id="closeSidebar" class="lg:hidden text-gray-300 hover:text-white text-xl" onclick="closeSidebar()" aria-label="Close menu">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             
             <nav class="space-y-2">
-                <a href="#section-0" class="sidebar-link flex items-center px-4 py-3 rounded-lg hover:bg-indigo-600 transition-colors group">
+                <a href="#section-0" class="sidebar-link flex items-center px-4 py-3 rounded-lg hover:bg-indigo-600 transition-colors group" onclick="closeSidebar()">
                     <i class="fas fa-cogs w-6 text-indigo-400 group-hover:text-white"></i>
                     <span class="ml-3">0. เตรียมข้อมูล</span>
                 </a>
-                <a href="#section-1" class="sidebar-link flex items-center px-4 py-3 rounded-lg hover:bg-blue-600 transition-colors group">
+                <a href="#section-1" class="sidebar-link flex items-center px-4 py-3 rounded-lg hover:bg-blue-600 transition-colors group" onclick="closeSidebar()">
                     <i class="fas fa-info-circle w-6 text-blue-400 group-hover:text-white"></i>
                     <span class="ml-3">1. ข้อมูลเบื้องต้น</span>
                 </a>
-                <a href="#section-2" class="sidebar-link flex items-center px-4 py-3 rounded-lg hover:bg-red-600 transition-colors group">
+                <a href="#section-2" class="sidebar-link flex items-center px-4 py-3 rounded-lg hover:bg-red-600 transition-colors group" onclick="closeSidebar()">
                     <i class="fas fa-exclamation-triangle w-6 text-red-400 group-hover:text-white"></i>
                     <span class="ml-3">2. GPS เพี้ยน</span>
                 </a>
-                <a href="#section-3" class="sidebar-link flex items-center px-4 py-3 rounded-lg hover:bg-green-600 transition-colors group">
+                <a href="#section-3" class="sidebar-link flex items-center px-4 py-3 rounded-lg hover:bg-green-600 transition-colors group" onclick="closeSidebar()">
                     <i class="fas fa-route w-6 text-green-400 group-hover:text-white"></i>
                     <span class="ml-3">3. วิเคราะห์สาย</span>
                 </a>
-                <a href="#section-4" class="sidebar-link flex items-center px-4 py-3 rounded-lg hover:bg-yellow-600 transition-colors group">
+                <a href="#section-4" class="sidebar-link flex items-center px-4 py-3 rounded-lg hover:bg-yellow-600 transition-colors group" onclick="closeSidebar()">
                     <i class="fas fa-bus-alt w-6 text-yellow-400 group-hover:text-white"></i>
                     <span class="ml-3">4. วิเคราะห์รถ</span>
                 </a>
@@ -135,10 +239,10 @@
         </div>
 
         <!-- Results Section -->
-    <div class="ml-64 container mx-auto max-w-7xl px-4 py-8">
+    <div class="main-content lg:ml-64 container mx-auto max-w-7xl px-4 py-8">
         <div id="results">
             <!-- Section 0: Data Preparation -->
-            <div id="section-0" class="bg-gradient-to-br from-purple-50 via-white to-blue-50 rounded-lg shadow-lg p-8 mb-8">
+            <div id="section-0" class="bg-gradient-to-br from-purple-50 via-white to-blue-50 rounded-lg shadow-lg p-4 md:p-8 mb-8 section-card">
                 <div class="text-center mb-8">
                     <div class="inline-block bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-full mb-4">
                         <i class="fas fa-cogs mr-2"></i>
@@ -164,7 +268,7 @@
 
                 <!-- Progress Flow -->
                 <div class="mb-8">
-                    <div class="flex items-center justify-center gap-3 flex-wrap">
+                    <div class="progress-flow flex items-center justify-center gap-3 flex-wrap">
                         <div class="flex items-center">
                             <div class="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold text-sm">
                                 857,056 แถว
@@ -199,7 +303,7 @@
                 <!-- Step 1 -->
                 <div class="border border-indigo-200 rounded-xl mb-6 overflow-hidden">
                     <div class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between section-header">
                             <div class="flex items-center">
                                 <div class="bg-white text-indigo-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
                                     1
@@ -360,7 +464,7 @@ df.head()</code></pre>
                 <!-- Step 2 -->
                 <div class="border border-blue-200 rounded-xl mb-6 overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between section-header">
                             <div class="flex items-center">
                                 <div class="bg-white text-blue-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
                                     2
@@ -418,7 +522,7 @@ memory usage: 111.2+ MB</code></pre>
                 <!-- Step 3 -->
                 <div class="border border-yellow-200 rounded-xl mb-6 overflow-hidden">
                     <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between section-header">
                             <div class="flex items-center">
                                 <div class="bg-white text-yellow-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
                                     3
@@ -450,7 +554,7 @@ memory usage: 111.2+ MB</code></pre>
                 <!-- Step 4 -->
                 <div class="border border-red-200 rounded-xl mb-6 overflow-hidden">
                     <div class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-4">
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center justify-between section-header">
                             <div class="flex items-center">
                                 <div class="bg-white text-red-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg mr-4">
                                     4
@@ -815,7 +919,7 @@ dtype: object</code></pre>
             </div>
 
             <!-- Section 1: Basic Info -->
-            <div id="section-1" class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-lg p-6 mb-6 card-hover">
+            <div id="section-1" class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover section-card">
                 <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-blue-500 pb-2">
                     <i class="fas fa-info-circle mr-2 text-blue-600"></i>
                     [1] ข้อมูลเบื้องต้น
@@ -842,7 +946,7 @@ dtype: object</code></pre>
             </div>
 
             <!-- Section 2: GPS Problems -->
-            <div id="section-2" class="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 rounded-lg shadow-lg p-6 mb-6 card-hover">
+            <div id="section-2" class="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover section-card">
                 <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-red-500 pb-2">
                     <i class="fas fa-exclamation-triangle mr-2 text-red-600"></i>
                     [2] วิเคราะห์ปัญหา GPS เพี้ยน
@@ -1474,7 +1578,7 @@ dtype: object</code></pre>
             </div>
 
             <!-- Section 3: Route Analysis -->
-            <div id="section-3" class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg shadow-lg p-6 mb-6 card-hover">
+            <div id="section-3" class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover section-card">
                 <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-green-500 pb-2">
                     <i class="fas fa-route mr-2 text-green-600"></i>
                     [3] วิเคราะห์ปัญหาตามสาย
@@ -1514,7 +1618,7 @@ dtype: object</code></pre>
             </div>
 
             <!-- Section 4: Bus Analysis -->
-            <div id="section-4" class="bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 rounded-lg shadow-lg p-6 mb-6 card-hover">
+            <div id="section-4" class="bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 rounded-lg shadow-lg p-4 md:p-6 mb-6 card-hover section-card">
                 <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-yellow-500 pb-2">
                     <i class="fas fa-bus-alt mr-2 text-yellow-600"></i>
                     [4] วิเคราะห์ปัญหาตามรถ (Top 10)
@@ -1564,6 +1668,78 @@ dtype: object</code></pre>
             </p>
         </div>
     </footer>
+
+    <script>
+        // Mobile menu toggle functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('active');
+            // Change icon
+            const icon = menuToggle.querySelector('i');
+            if (sidebar.classList.contains('open')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
+
+        function closeSidebar() {
+            if (window.innerWidth <= 1023) {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
+
+        // Event listeners
+        if (menuToggle) {
+            menuToggle.addEventListener('click', toggleSidebar);
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeSidebar);
+        }
+
+        // Close sidebar on window resize if it becomes desktop size
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 1023) {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            }
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        // Close sidebar after navigation on mobile
+                        setTimeout(closeSidebar, 300);
+                    }
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
