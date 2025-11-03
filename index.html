@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>การวิเคราะห์ รถไฟฟ้า ขส.มช.ของมหาวิทยาลัยเชียงใหม่</title>
+    <title>การวิเคราะห์ GPS รถรางมหาวิทยาลัยเชียงใหม่</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -92,8 +92,8 @@
         <div class="container mx-auto max-w-7xl">
             <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2">
                 <i class="fas fa-bus mr-2 md:mr-3"></i>
-                <span class="inline md:inline">การวิเคราะห์ รถไฟฟ้า ขส.มช.</span>
-                <span class="inline md:inline">ของมหาวิทยาลัยเชียงใหม่</span>
+                <span class="inline md:inline">การวิเคราะห์ GPS</span>
+                <span class="inline md:inline">รถรางมหาวิทยาลัยเชียงใหม่</span>
             </h1>
             <p class="text-center text-purple-100 text-sm md:text-base">ข้อมูล ณ วันที่ 11 กันยายน 2568</p>
         </div>
@@ -1201,6 +1201,55 @@ dtype: object</code></pre>
                             </tfoot>
                         </table>
                     </div>
+                    
+                    <!-- ตัวอย่างพิกัดที่พบจริง -->
+                    <div class="bg-orange-100 border-2 border-orange-300 rounded-lg p-4 mt-4">
+                        <h5 class="font-bold text-orange-800 mb-3 flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2 text-red-600"></i>
+                            ตัวอย่างพิกัดที่พบ (รถหมายเลข 28):
+                        </h5>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="bg-white border-2 border-red-300 rounded-lg p-3">
+                                <div class="text-xs text-gray-500 mb-1">🕐 16:21:03</div>
+                                <code class="text-sm font-bold text-red-600">LAT: 18.749, LNG: 98.961</code>
+                                <div class="text-xs text-red-600 mt-1">
+                                    ✗ 18.749 &lt; 18.76 (ใต้เกินไป), 98.961 &gt; 99.00 (ออกเกินไป)
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white border-2 border-red-300 rounded-lg p-3">
+                                <div class="text-xs text-gray-500 mb-1">🕐 16:21:20</div>
+                                <code class="text-sm font-bold text-red-600">LAT: 18.731, LNG: 98.963</code>
+                                <div class="text-xs text-red-600 mt-1">
+                                    ✗ 18.731 &lt; 18.76 (ใต้เกินไป), 98.963 &gt; 99.00 (ออกเกินไป)
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white border-2 border-red-300 rounded-lg p-3">
+                                <div class="text-xs text-gray-500 mb-1">🕐 16:21:48</div>
+                                <code class="text-sm font-bold text-red-600">LAT: 18.720, LNG: 98.953</code>
+                                <div class="text-xs text-red-600 mt-1">
+                                    ✗ 18.720 &lt; 18.76 (ใต้เกินไป)
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white border-2 border-red-300 rounded-lg p-3">
+                                <div class="text-xs text-gray-500 mb-1">🕐 16:21:50</div>
+                                <code class="text-sm font-bold text-red-600">LAT: 18.722, LNG: 98.949</code>
+                                <div class="text-xs text-red-600 mt-1">
+                                    ✗ 18.722 &lt; 18.76 (ใต้เกินไป), 98.949 &lt; 98.93 (ตกเกินไป)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-orange-50 border-t-2 border-orange-300 mt-3 pt-3">
+                            <div class="text-xs text-gray-700">
+                                <strong>📊 สรุป:</strong> จาก 322 จุดที่พบ รถหมายเลข 28 มี GPS ไปทางใต้ของ CMU ทั้งหมด 
+                                (LAT &lt; 18.76) และบางจุดไปทางตะวันออก (LNG &gt; 99.00) ด้วย
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Insight 3: Teleporting -->
@@ -1502,12 +1551,13 @@ dtype: object</code></pre>
         </div>
     </div>
 
+
     <!-- Footer -->
     <footer class="bg-gray-800 text-white py-6 mt-12">
         <div class="container mx-auto max-w-7xl px-4 text-center">
             <p class="text-gray-300">
                 <i class="fas fa-university mr-2"></i>
-                การวิเคราะห์ รถไฟฟ้า ขส.มช.ของมหาวิทยาลัยเชียงใหม่
+                การวิเคราะห์ GPS รถรางมหาวิทยาลัยเชียงใหม่
             </p>
             <p class="text-gray-400 text-sm mt-2">
                 Developed for Prapakorn Kanjina
